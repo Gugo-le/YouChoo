@@ -5,9 +5,9 @@
 
 <table>
   <tr>
-    <td><img src="assets/imgs/1.png" width="300"></td>
-    <td><img src="assets/imgs/2.png" width="300"></td>
-    <td><img src="assets/imgs/3.png" width="300"></td>
+    <td><img src="assets/imgs/1.png" width="200"></td>
+    <td><img src="assets/imgs/2.png" width="200"></td>
+    <td><img src="assets/imgs/3.png" width="200"></td>
   </tr>
 </table>
 
