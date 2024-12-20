@@ -29,3 +29,14 @@ def save_random_word():
     print(f"오늘의 단어가 '{random_word}'로 설정되었습니다. 게임을 시작하세요!")
 
 schedule.every(24).hours.do(save_random_word)
+
+# 유사도 계산
+def calculate_similarity(user_word, target_word, word2vec_model):
+    if user_word in word2vec_model.wv and target_word in word2vec_model.wv:
+        user_vec = word2vec_model.wv[user_word]
+        target_vec = word2vec_model.wv[target_word]
+        similarity = cosine_similarity([user_vec], [target_vec])
+        return similarity[0][0]
+    else:
+        print(f"모델에 '{user_word}' 또는 '{target_word}' 단어가 없습니다. 다른 단어를 시도해 주세요.")
+        return 0.0
