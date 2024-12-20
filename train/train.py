@@ -1,5 +1,5 @@
 import json
-from konlpy.tag import Okt
+from konlpy.tag import Kkma
 from gensim.models import Word2Vec
 
 # JSON 파일에서 문장 불러오기
@@ -15,12 +15,12 @@ def load_stopwords(file_path):
 stopwords = load_stopwords('stopwords-ko.txt')
 
 
-okt = Okt()
+kkma = Kkma()
 
 # 문장 토큰화 (형태소 분석 및 불용어 제거)
 def preprocess_sentence(sentence):
    
-    tokens = okt.morphs(sentence)  
+    tokens = kkma.morphs(sentence)  
    
     tokens = [word for word in tokens if word not in stopwords]
     return tokens
