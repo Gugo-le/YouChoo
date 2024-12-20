@@ -52,3 +52,25 @@ def check_word_guess(user_word, target_word, word2vec_model):
         print(f"아직 아닙니다. 계속 도전해보세요!")
         
 save_random_word()
+
+
+while True:
+    user_input = input("단어를 입력하세요('포기하기'를 입력하면 정답을 알려드립니다): ")
+    
+    if user_input == "포기하기":
+        
+        with open("target_word.txt", "r", encoding="utf-8") as f:
+            target_word = f.read().strip()
+        print(f"정답은 '{target_word}'입니다.")
+        break
+    
+    if user_input == "q":
+        break
+      
+    with open("target_word.txt", "r", encoding="utf-8") as f:
+        target_word = f.read().strip()
+    
+    check_word_guess(user_input, target_word, word2vec_model)
+    
+    schedule.run_pending()
+    time.sleep(1)
