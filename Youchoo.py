@@ -40,3 +40,15 @@ def calculate_similarity(user_word, target_word, word2vec_model):
     else:
         print(f"모델에 '{user_word}' 또는 '{target_word}' 단어가 없습니다. 다른 단어를 시도해 주세요.")
         return 0.0
+    
+# 사용자가 입력한 단어와 저장된 단어를 비교하여 점수를 계산하고 맞추면 축하 메시지 출력
+def check_word_guess(user_word, target_word, word2vec_model):
+    similarity_score = calculate_similarity(user_word, target_word, word2vec_model)
+    print(f"유사도 점수: {similarity_score * 100:.2f}%")
+    
+    if similarity_score == 1.00:  
+        print(f"축하합니다! '{target_word}'를 맞추셨습니다!")
+    else:
+        print(f"아직 아닙니다. 계속 도전해보세요!")
+        
+save_random_word()
