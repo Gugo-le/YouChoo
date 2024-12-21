@@ -3,21 +3,36 @@ import schedule
 import time
 import fasttext
 from sklearn.metrics.pairwise import cosine_similarity
-import sys  
+import sys
+
 
 def load_fasttext_model(file_path):
     model = fasttext.load_model(file_path)
     return model
 
-
+# 모델 경로
 fasttext_model = load_fasttext_model("cc.ko.300.bin")
 
+# 단어 목록 파일에서 랜덤 단어 선택 함수
+def get_random_word_from_file(file_path):
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            words = f.readlines()
+        random_word = random.choice(words).strip()  
+        return random_word
+    except Exception as e:
+        print(f"단어 파일을 읽는 중 오류가 발생했습니다: {e}")
+        return None
 
+# 목표 단어 저장 함수
 def save_random_word():
-    
-    random_word = "여기에서"  
-    with open("target_word.txt", "w", encoding="utf-8") as f:
-        f.write(random_word)
+    random_word = get_random_word_from_file("assets/txt/wordlist.txt")  
+    if random_word:
+        with open("target_word.txt", "w", encoding="utf-8") as f:
+            f.write(random_word)
+        print(f"선택된 단어: {random_word}")
+    else:
+        print("랜덤 단어를 선택하는 데 실패했습니다.")
 
 schedule.every(24).hours.do(save_random_word)
 
@@ -27,14 +42,14 @@ def calculate_similarity(user_word, target_word, model):
         user_vec = model.get_word_vector(user_word)  # 사용자 단어 벡터
         target_vec = model.get_word_vector(target_word)  # 목표 단어 벡터
 
-        
+     
         similarity = cosine_similarity([user_vec], [target_vec])
         return similarity[0][0]
     except Exception as e:
         print(f"단어 벡터 계산 중 오류가 발생했습니다: {e}")
         return None
 
-# 유사도 계산 및 결과 출력
+
 def check_word_guess(user_word, target_word, model):
     similarity_score = calculate_similarity(user_word, target_word, model)
     
@@ -49,7 +64,7 @@ def check_word_guess(user_word, target_word, model):
     else:
         print(f"아직 아닙니다. '{user_word}'와 목표 단어의 의미가 조금 다릅니다. 계속 도전해보세요!")
 
-# 초기 랜덤 단어 저장
+
 save_random_word()
 
 while True:
