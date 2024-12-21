@@ -55,13 +55,13 @@ def check_word_guess(user_word, target_word, model):
     if similarity_score is None:
         return
     
-    print(f"유사도 점수: {similarity_score * 100:.2f}%")
+    print(f"'{user_word}'의 유사도 점수: {similarity_score * 100:.2f}%")
     
     if similarity_score == 1.0:  
-        print(f"축하합니다! '{target_word}'를 맞추셨습니다!")
+        print(f"축하합니다! '{target_word}'를 맞소리추셨습니다!")
         sys.exit()  
     else:
-        print(f"아직 아닙니다. '{user_word}'와 목표 단어의 의미가 조금 다릅니다. 계속 도전해보세요!")
+        print(f"'{user_word}'와/과 목표 단어의 의미가 조금 다릅니다. 계속 도전해보세요!")
 
 
 save_random_word()
