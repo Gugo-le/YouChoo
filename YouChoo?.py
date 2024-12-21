@@ -30,7 +30,6 @@ def save_random_word():
     if random_word:
         with open("target_word.txt", "w", encoding="utf-8") as f:
             f.write(random_word)
-        print(f"선택된 단어: {random_word}")
     else:
         print("랜덤 단어를 선택하는 데 실패했습니다.")
 
