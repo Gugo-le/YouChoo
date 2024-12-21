@@ -26,7 +26,7 @@ def get_random_word_from_file(file_path):
 
 # 목표 단어 저장 함수
 def save_random_word():
-    random_word = get_random_word_from_file("assets/txt/wordlist.txt")  
+    random_word = get_random_word_from_file("assets/txt/word.txt")  
     if random_word:
         with open("target_word.txt", "w", encoding="utf-8") as f:
             f.write(random_word)
