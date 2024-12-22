@@ -43,18 +43,18 @@ def calculate_similarity(user_word, target_word, model):
 
 def update_and_get_rankings(user_word, similarity_score, rankings):
     for i, (word, score) in enumerate(rankings):
-        if word == user_word:
-            if similarity_score > score:
+        if word == user_word:  # 같은 단어가 이미 랭킹에 있을 경우
+            if similarity_score > score:  # 더 높은 점수가 입력되면 업데이트
                 rankings[i] = (user_word, similarity_score)
             break
     else:
-        rankings.append((user_word, similarity_score))
+        rankings.append((user_word, similarity_score))  # 새로운 단어 추가
     
-    rankings.sort(key=lambda x: x[1], reverse=True)
+    rankings.sort(key=lambda x: x[1], reverse=True)  # 유사도 기준으로 정렬
     rank = next((i + 1 for i, (word, _) in enumerate(rankings) if word == user_word), len(rankings))
     return rank
 
-def display_top_rankings(rankings, top_n=10):
+def display_top_rankings(rankings, top_n=30):
     print(f"\n🏆 Top {top_n} Rankings 🏆")
     for i, (word, score) in enumerate(rankings[:top_n], start=1):
         print(f"{i}. {word} - 유사도: {score * 100:.2f}%")
@@ -65,7 +65,7 @@ def check_word_guess(user_word, target_word, model, rankings):
         return False, None, None
     
     rank = update_and_get_rankings(user_word, similarity_score, rankings)
-    print(f"#{attempts} '{user_word}'의 유사도 점수: {similarity_score * 100:.2f}% | 랭킹: {rank}위")
+    print(f"#{attempts} '{user_word}'의 유사도 점수: {similarity_score * 100:.2f}% | 랭킹: {rank}")
     
     if similarity_score == 1.0:
         print(f"축하합니다! '{target_word}'를 맞추셨습니다!")
@@ -85,7 +85,6 @@ while True:
             target_word = f.read().strip()
         print(f"정답은 '{target_word}'입니다.")
         print(f"총 도전 횟수: {attempts}번")
-        display_top_rankings(rankings)
         break
     
     if user_input == "q":
@@ -101,8 +100,7 @@ while True:
     if guessed_correctly:
         print(f"총 도전 횟수: {attempts}번")
         display_top_rankings(rankings)
-        break  # 정답을 맞췄을 경우 루프 종료
+        break
     
-    # `schedule.run_pending()`과 `time.sleep(1)`이 충돌하지 않도록 변경
     schedule.run_pending()
     time.sleep(1)
