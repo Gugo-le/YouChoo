@@ -2,3 +2,4 @@ venv/
 venv/lib/
 cc.ko.300.bin
 target_word.txt
+first_words.txt
