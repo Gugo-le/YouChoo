@@ -29,8 +29,8 @@
 <table>
   <tr>
     <td><img src="assets/imgs/output3.png" width="200"></td>
-    <td><img src="assets/imgs/output2.png" width="200"></td>
-    <td><img src="assets/imgs/output1.png" width="200"></td>
+    <td><img src="assets/imgs/output2.png" width="250"></td>
+    <td><img src="assets/imgs/output1.png" width="250"></td>
   </tr>
 </table>
 
