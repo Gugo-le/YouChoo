@@ -67,7 +67,7 @@ def update_and_get_rankings(user_word, similarity_score, rankings):
 
 def display_top_rankings(rankings, top_n=30):
     """Top N 랭킹 출력."""
-    print(f"\n🏆 Top {top_n} Rankings 🏆")
+    print(f"\n🏆 Top {top_n} Rankings 🏆\n")
     for i, (word, score) in enumerate(rankings[:top_n], start=1):
         print(f"{i}. {word} - 유사도: {score * 100:.2f}%")
 
