@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #121212;
+    color: #fff;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.input-section {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#word-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #1e1e1e;
+    color: #fff;
+}
+
+#guess-button,
+#start-button,
+#give-up-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #3a3a3a;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+.ranking-section table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.ranking-section th,
+.ranking-section td {
+    border: 1px solid #444;
+    padding: 10px;
+    text-align: center;
+}
+
+.wordcloud-section img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}

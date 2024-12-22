@@ -1,75 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>유사도 게임</title>
+    <title>You Choo? - 인공지능이 생각하고 있는 단어는 무엇일까요?</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 
 <body>
-    <h1>유사도 단어 게임</h1>
-    <div id="ranking">
-        <h2>현재 랭킹</h2>
-        <ul id="rankingList"></ul>
+    <div class="container">
+        <header>
+            <h1>You Choo? - 인공지능이 생각하고 있는 단어는 무엇일까요?</h1>
+            <p id="game-info">
+                게임이 아직 시작되지 않았습니다. 시작 버튼을 눌러주세요.
+            </p>
+        </header>
+        <main>
+            <div class="input-section">
+                <input type="text" id="word-input" placeholder="추측할 단어를 입력하세요">
+                <button id="guess-button">추측하기</button>
+            </div>
+            <div class="ranking-section">
+                <h2>추측 단어 순위</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>추측한 단어</th>
+                            <th>유사도 (%)</th>
+                            <th>랭킹</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-table">
+                        <!-- 추측 결과가 여기에 추가됩니다. -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="wordcloud-section">
+                <h2>워드 클라우드</h2>
+                <img id="wordcloud" alt="워드 클라우드가 여기에 표시됩니다.">
+            </div>
+        </main>
+        <footer>
+            <button id="start-button">게임 시작</button>
+            <button id="give-up-button">포기하기</button>
+        </footer>
     </div>
-    <div id="game">
-        <input type="text" id="wordInput" placeholder="단어를 입력하세요" />
-        <button onclick="submitGuess()">확인</button>
-    </div>
-    <div id="result"></div>
-
-    <script>
-        async function submitGuess() {
-            const input = document.getElementById('wordInput').value.trim();
-            if (!input) {
-                alert("단어를 입력하세요!");
-                return;
-            }
-
-            try {
-                const response = await fetch('/guess', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        user_input: input
-                    }),
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    displayResult(data);
-                } else {
-                    console.error("서버 응답 오류:", await response.text());
-                    alert("요청 처리 중 문제가 발생했습니다.");
-                }
-            } catch (error) {
-                console.error("요청 중 오류:", error);
-                alert("네트워크 문제로 서버에 접근할 수 없습니다.");
-            }
-        }
-
-        function displayResult(data) {
-            const resultDiv = document.getElementById('result');
-
-            if (data.message === "축하합니다! 정답입니다!") {
-                resultDiv.innerHTML = `
-                    <p>${data.message}</p>
-                    <p>${data.attempts}번의 시도 끝에 정답을 맞췄습니다!</p>
-                    <button id="wordcloud" onclick="generateWordcloud()">워드클라우드 보기</button>
-                    <button id="share" onclick="shareGame()">공유하기</button>
-                `;
-            } else {
-                resultDiv.innerHTML = `
-                    <p>입력한 단어: ${data.user_input}</p>
-                    <p>유사도 점수: ${data.similarity_score.toFixed(2)}</p>
-                    <p>현재 랭킹: ${data.rank}</p>
-                `;
-            }
-        }
-    </script>
+    <script src="/static/script.js"></script>
 </body>
 
 </html>
