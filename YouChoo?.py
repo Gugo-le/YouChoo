@@ -41,22 +41,19 @@ def calculate_similarity(user_word, target_word, model):
         print(f"단어 벡터 계산 중 오류가 발생했습니다: {e}")
         return None
 
-def check_word_guess(user_word, target_word, model, attempts):
+def check_word_guess(user_word, target_word, model):
     similarity_score = calculate_similarity(user_word, target_word, model)
-    
     if similarity_score is None:
-        return attempts
+        return False
     
-    print(f"'{user_word}'의 유사도 점수: {similarity_score * 100:.2f}%")
+    print(f"#{attempts} '{user_word}'의 유사도 점수: {similarity_score * 100:.2f}%")
     
     if similarity_score == 1.0:
         print(f"축하합니다! '{target_word}'를 맞추셨습니다!")
-        print(f"총 도전 횟수: {attempts}번")
-        sys.exit()
+        return True
     else:
-        print(f"'{user_word}'와/과 목표 단어의 의미가 조금 다릅니다. 계속 도전해보세요!")
-    
-    return attempts + 1
+        
+        return False
 
 save_random_word()
 attempts = 0
@@ -77,8 +74,11 @@ while True:
     
     with open("target_word.txt", "r", encoding="utf-8") as f:
         target_word = f.read().strip()
-
-    attempts = check_word_guess(user_input, target_word, fasttext_model, attempts)
+    
+    attempts += 1
+    if check_word_guess(user_input, target_word, fasttext_model):
+        print(f"총 도전 횟수: {attempts}번")
+        break
     
     schedule.run_pending()
     time.sleep(1)
