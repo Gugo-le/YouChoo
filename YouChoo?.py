@@ -115,6 +115,8 @@ attempts = 0
 rankings = []  
 first_words = []  
 
+game_over = False
+
 while True:
     user_input = input("단어를 입력하세요('포기하기'를 입력하면 정답을 알려드립니다): ")
 
@@ -139,6 +141,10 @@ while True:
         
     if user_input == "워드클라우드":
         wordcloud()
+        continue
+    
+    if game_over:
+        print("사용자들의 첫 단어 빈도 수가 궁금하시면 '워드클라우드'를 입력해주세요.")
         
         
     with open("target_word.txt", "r", encoding="utf-8") as f:
@@ -151,7 +157,8 @@ while True:
     if guessed_correctly:
         print(f"총 도전 횟수: {attempts}번")
         display_top_rankings(rankings)
-        break
+        game_over = True
+        continue
 
     schedule.run_pending()
     time.sleep(1)
