@@ -11,8 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let rankings = [];
 
     function updateRankingTable() {
-        rankingTable.innerHTML = ""; // 테이블 초기화
-        let attemptCount = 1; // 시도 횟수 카운터
+        rankingTable.innerHTML = "";
+        let attemptCount = 1;
 
         // 유사도 순으로 정렬
         rankings.sort((a, b) => b.similarity - a.similarity);
