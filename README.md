@@ -26,7 +26,13 @@
 >> 예를 들어 나는 00에 간다. 00 안에 들어가는 단어는 수도없이 많습니다.
 
 ## output
-<img src="assets/imgs/output.png" width="400">
+<table>
+  <tr>
+    <td><img src="assets/imgs/output3.png" width="200"></td>
+    <td><img src="assets/imgs/output2.png" width="200"></td>
+    <td><img src="assets/imgs/output1.png" width="200"></td>
+  </tr>
+</table>
 
 ## idea
 - [x] 사용자들의 첫 단어 -> 두 번째 단어 빈도 수 통계 -> 워드클라우드로 나타내기
