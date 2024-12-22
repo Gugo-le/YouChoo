@@ -115,49 +115,52 @@ attempts = 0
 rankings = []  
 first_words = []  
 
-game_over = False
+game_over = False  # 게임 종료 여부를 저장하는 변수
 
 while True:
-    user_input = input("단어를 입력하세요('포기하기'를 입력하면 정답을 알려드립니다): ")
+    # 정답을 맞춘 경우 특별 메시지를 출력하고 이후 사용자 입력 대기
+    if game_over:
+        print("사용자들의 첫 단어 빈도 수가 궁금하시면 '워드클라우드'를 입력해주세요.")
+        print("게임을 종료하려면 'q'를 입력하세요.")
+        user_input = input()
+    else:
+        user_input = input("단어를 입력하세요('포기하기'를 입력하면 정답을 알려드립니다): ")
 
-    
     if attempts == 0:
         first_words.append(user_input)
         with open("first_words.txt", "a", encoding="utf-8") as f:
             f.write(user_input + "\n")
 
-   
     if user_input == "포기하기":
         with open("target_word.txt", "r", encoding="utf-8") as f:
             target_word = f.read().strip()
         print(f"정답은 '{target_word}'입니다.")
         print(f"총 도전 횟수: {attempts}번")
-        break
+        game_over = True 
+        continue  
 
     if user_input == "q":
         print(f"게임을 종료합니다. 총 도전 횟수: {attempts}번")
         break
 
-        
     if user_input == "워드클라우드":
         wordcloud()
         continue
-    
-    if game_over:
-        print("사용자들의 첫 단어 빈도 수가 궁금하시면 '워드클라우드'를 입력해주세요.")
-        
-        
+
     with open("target_word.txt", "r", encoding="utf-8") as f:
         target_word = f.read().strip()
+
+    if game_over:
+        print("이미 정답을 맞추셨습니다. '워드클라우드'나 'q'를 입력하세요.")
+        continue
 
     attempts += 1
     guessed_correctly, similarity_score, rank = check_word_guess(user_input, target_word, fasttext_model, rankings)
 
-   
     if guessed_correctly:
         print(f"총 도전 횟수: {attempts}번")
         display_top_rankings(rankings)
-        game_over = True
+        game_over = True  
         continue
 
     schedule.run_pending()
