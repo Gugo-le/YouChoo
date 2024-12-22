@@ -15,7 +15,6 @@ fasttext_model = load_fasttext_model("cc.ko.300.bin")
 
 
 def get_random_word_from_file(file_path):
-    """단어 파일에서 무작위 단어 선택."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             words = f.readlines()
@@ -95,23 +94,23 @@ def check_word_guess(user_word, target_word, model, rankings):
         return False, similarity_score, rank
 
 
-# 매일 랜덤 단어 저장
+
 save_random_word()
 
-attempts = 0  # 시도 횟수
-rankings = []  # 랭킹 저장
-first_words = []  # 첫 단어 저장
+attempts = 0  
+rankings = []  
+first_words = []  
 
 while True:
     user_input = input("단어를 입력하세요('포기하기'를 입력하면 정답을 알려드립니다): ")
 
-    # 첫 번째 시도인 경우 첫 단어 기록
+    
     if attempts == 0:
         first_words.append(user_input)
         with open("first_words.txt", "a", encoding="utf-8") as f:
             f.write(user_input + "\n")
 
-    # '포기하기' 입력 시 종료
+   
     if user_input == "포기하기":
         with open("target_word.txt", "r", encoding="utf-8") as f:
             target_word = f.read().strip()
@@ -123,19 +122,18 @@ while True:
         print(f"게임을 종료합니다. 총 도전 횟수: {attempts}번")
         break
 
-    # 타겟 단어 로드
+    
     with open("target_word.txt", "r", encoding="utf-8") as f:
         target_word = f.read().strip()
 
     attempts += 1
     guessed_correctly, similarity_score, rank = check_word_guess(user_input, target_word, fasttext_model, rankings)
 
-    # 정답 맞춤 여부 출력
+   
     if guessed_correctly:
         print(f"총 도전 횟수: {attempts}번")
         display_top_rankings(rankings)
         break
 
-    # 1초 대기 및 스케줄 실행
     schedule.run_pending()
     time.sleep(1)
