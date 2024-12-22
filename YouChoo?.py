@@ -54,7 +54,7 @@ def update_and_get_rankings(user_word, similarity_score, rankings):
     rank = next((i + 1 for i, (word, _) in enumerate(rankings) if word == user_word), len(rankings))
     return rank
 
-def display_top_rankings(rankings, top_n=100):
+def display_top_rankings(rankings, top_n=10):
     print(f"\n🏆 Top {top_n} Rankings 🏆")
     for i, (word, score) in enumerate(rankings[:top_n], start=1):
         print(f"{i}. {word} - 유사도: {score * 100:.2f}%")
@@ -65,7 +65,7 @@ def check_word_guess(user_word, target_word, model, rankings):
         return False, None, None
     
     rank = update_and_get_rankings(user_word, similarity_score, rankings)
-    print(f"#{attempts} '{user_word}'의 유사도 점수: {similarity_score * 100:.2f}% | 랭킹: {rank}")
+    print(f"#{attempts} '{user_word}'의 유사도 점수: {similarity_score * 100:.2f}% | 랭킹: {rank}위")
     
     if similarity_score == 1.0:
         print(f"축하합니다! '{target_word}'를 맞추셨습니다!")
@@ -103,5 +103,6 @@ while True:
         display_top_rankings(rankings)
         break  # 정답을 맞췄을 경우 루프 종료
     
+    # `schedule.run_pending()`과 `time.sleep(1)`이 충돌하지 않도록 변경
     schedule.run_pending()
     time.sleep(1)
