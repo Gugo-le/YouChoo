@@ -65,7 +65,7 @@ def check_word_guess(user_word, target_word, model, rankings):
         return False, None, None
     
     rank = update_and_get_rankings(user_word, similarity_score, rankings)
-    print(f"#{attempts} '{user_word}'의 유사도 점수: {similarity_score * 100:.2f}% | 랭킹: {rank}")
+    print(f"#{attempts} '{user_word}'의 유사도 점수: {similarity_score * 100:.2f}% | 랭킹: {rank}위")
     
     if similarity_score == 1.0:
         print(f"축하합니다! '{target_word}'를 맞추셨습니다!")
@@ -76,9 +76,15 @@ def check_word_guess(user_word, target_word, model, rankings):
 save_random_word()
 attempts = 0
 rankings = []
+first_words = []
 
 while True:
     user_input = input("단어를 입력하세요('포기하기'를 입력하면 정답을 알려드립니다): ")
+    
+    if attempts == 0:
+        first_words.append(user_input)
+        with open("first_words.txt", "a", encoding="utf=8") as f:
+            f.write(user_input + "\n")
     
     if user_input == "포기하기":
         with open("target_word.txt", "r", encoding="utf-8") as f:
