@@ -47,6 +47,11 @@ def update_and_get_rankings(user_word, similarity_score, rankings):
     rank = rankings.index((user_word, similarity_score)) + 1
     return rank
 
+def display_top_rankings(rankings, top_n=100):
+    print(f"\n🏆 Top {top_n} Rankings 🏆")
+    for i, (word, score) in enumerate(rankings[:top_n], start=1):
+        print(f"{i}. {word} - 유사도: {score * 100:.2f}%")
+
 def check_word_guess(user_word, target_word, model, rankings):
     similarity_score = calculate_similarity(user_word, target_word, model)
     if similarity_score is None:
@@ -87,6 +92,7 @@ while True:
     
     if guessed_correctly:
         print(f"총 도전 횟수: {attempts}번")
+        display_top_rankings(rankings)
         break
     
     schedule.run_pending()
