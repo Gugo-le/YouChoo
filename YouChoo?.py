@@ -46,7 +46,7 @@ def check_word_guess(user_word, target_word, model):
     if similarity_score is None:
         return False, None
     
-    print(f"#{attempts} '{user_word}'의 유사도 점수: {similarity_score * 100:.2f}%")
+    print(f"#{attempts} '{user_word}'의 유사도 점수: {similarity_score * 100:.2f}% | 랭킹: {rankings}")
     
     if similarity_score == 1.0:
         print(f"축하합니다! '{target_word}'를 맞추셨습니다!")
