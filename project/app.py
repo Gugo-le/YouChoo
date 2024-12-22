@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import random
 import fasttext
 from sklearn.metrics.pairwise import cosine_similarity
@@ -9,6 +9,9 @@ from collections import Counter
 
 app = Flask(__name__)
 
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 def load_fasttext_model(file_path):
     model = fasttext.load_model(file_path)
@@ -97,6 +100,23 @@ def guess():
             "attempts": attempts + 1,
             "rankings": rankings
         }), 200
+
+    similarity_score = calculate_similarity(user_input, target_word, fasttext_model)
+    if similarity_score is None:
+        return jsonify({"error": "유사도 계산에 실패했습니다."}), 500
+
+    # JSON 직렬화가 가능하도록 float으로 변환
+    similarity_score = float(similarity_score)
+
+    attempts += 1
+    rank = update_and_get_rankings(user_input, similarity_score, rankings)
+
+    return jsonify({
+        "user_input": user_input,
+        "similarity_score": similarity_score,
+        "rank": rank,
+        "attempts": attempts
+    }), 200
 
     similarity_score = calculate_similarity(user_input, target_word, fasttext_model)
     if similarity_score is None:
