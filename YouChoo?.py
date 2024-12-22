@@ -43,14 +43,14 @@ def calculate_similarity(user_word, target_word, model):
 
 def update_and_get_rankings(user_word, similarity_score, rankings):
     for i, (word, score) in enumerate(rankings):
-        if word == user_word:  # 같은 단어가 이미 랭킹에 있을 경우
-            if similarity_score > score:  # 더 높은 점수가 입력되면 업데이트
+        if word == user_word:
+            if similarity_score > score:
                 rankings[i] = (user_word, similarity_score)
             break
     else:
-        rankings.append((user_word, similarity_score))  # 새로운 단어 추가
+        rankings.append((user_word, similarity_score))
     
-    rankings.sort(key=lambda x: x[1], reverse=True)  # 유사도 기준으로 정렬
+    rankings.sort(key=lambda x: x[1], reverse=True)
     rank = next((i + 1 for i, (word, _) in enumerate(rankings) if word == user_word), len(rankings))
     return rank
 
@@ -101,7 +101,7 @@ while True:
     if guessed_correctly:
         print(f"총 도전 횟수: {attempts}번")
         display_top_rankings(rankings)
-        break
+        break  # 정답을 맞췄을 경우 루프 종료
     
     schedule.run_pending()
     time.sleep(1)
