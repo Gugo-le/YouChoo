@@ -3,7 +3,9 @@ import schedule
 import time
 import fasttext
 from sklearn.metrics.pairwise import cosine_similarity
-
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+from collections import Counter
 
 def load_fasttext_model(file_path):
     """FastText 모델 로드."""
@@ -92,8 +94,20 @@ def check_word_guess(user_word, target_word, model, rankings):
         return True, similarity_score, rank
     else:
         return False, similarity_score, rank
+    
+def wordcloud():
+    with open("first_words.txt", "r", encoding= "utf-8") as f:
+        words = f.readlines()
+        
+    words = [word.strip() for word in words]
+    word_counts = Counter(words)
+    
+    wordcloud = WordCloud(font_path="assets/fonts/Do_Hyeon/DoHyeon-Regular.ttf", width=800, height=400, background_color="white").generate_from_frequencies(word_counts)   
 
-
+    plt.figure(figsize=(10, 5))
+    plt.imshow(wordcloud, interpolation="bilinear")
+    plt.axis("off")
+    plt.show()
 
 save_random_word()
 
@@ -122,7 +136,11 @@ while True:
         print(f"게임을 종료합니다. 총 도전 횟수: {attempts}번")
         break
 
-    
+        
+    if user_input == "워드클라우드":
+        wordcloud()
+        
+        
     with open("target_word.txt", "r", encoding="utf-8") as f:
         target_word = f.read().strip()
 
