@@ -85,6 +85,7 @@ while True:
             target_word = f.read().strip()
         print(f"정답은 '{target_word}'입니다.")
         print(f"총 도전 횟수: {attempts}번")
+        display_top_rankings(rankings)
         break
     
     if user_input == "q":
