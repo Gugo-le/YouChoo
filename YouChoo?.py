@@ -41,25 +41,25 @@ def calculate_similarity(user_word, target_word, model):
         print(f"단어 벡터 계산 중 오류가 발생했습니다: {e}")
         return None
 
-def check_word_guess(user_word, target_word, model):
+def update_and_get_rankings(user_word, similarity_score, rankings):
+    rankings.append((user_word, similarity_score))
+    rankings.sort(key=lambda x: x[1], reverse=True)
+    rank = rankings.index((user_word, similarity_score)) + 1
+    return rank
+
+def check_word_guess(user_word, target_word, model, rankings):
     similarity_score = calculate_similarity(user_word, target_word, model)
     if similarity_score is None:
-        return False, None
+        return False, None, None
     
-    print(f"#{attempts} '{user_word}'의 유사도 점수: {similarity_score * 100:.2f}% | 랭킹: {rankings}")
+    rank = update_and_get_rankings(user_word, similarity_score, rankings)
+    print(f"#{attempts} '{user_word}'의 유사도 점수: {similarity_score * 100:.2f}% | 랭킹: {rank}")
     
     if similarity_score == 1.0:
         print(f"축하합니다! '{target_word}'를 맞추셨습니다!")
-        return True, similarity_score
+        return True, similarity_score, rank
     else:
-        return False, similarity_score
-
-def display_rankings(rankings):
-    print("\n📊 현재 랭킹:")
-    sorted_rankings = sorted(rankings, key=lambda x: x[1], reverse=True)
-    for i, (word, score) in enumerate(sorted_rankings[:5], 1):  # 상위 5개만 표시
-        print(f"{i}. {word} - 유사도: {score * 100:.2f}%")
-    print()
+        return False, similarity_score, rank
 
 save_random_word()
 attempts = 0
@@ -73,23 +73,17 @@ while True:
             target_word = f.read().strip()
         print(f"정답은 '{target_word}'입니다.")
         print(f"총 도전 횟수: {attempts}번")
-        display_rankings(rankings)
         break
     
     if user_input == "q":
         print(f"게임을 종료합니다. 총 도전 횟수: {attempts}번")
-        display_rankings(rankings)
         break
     
     with open("target_word.txt", "r", encoding="utf-8") as f:
         target_word = f.read().strip()
     
     attempts += 1
-    guessed_correctly, similarity_score = check_word_guess(user_input, target_word, fasttext_model)
-    
-    if similarity_score is not None: # is 연산자 호출 -> 좌/우 같은지 확인
-        rankings.append((user_input, similarity_score))  # 단어와 유사도를 기록
-        display_rankings(rankings)  # 현재 랭킹 표시
+    guessed_correctly, similarity_score, rank = check_word_guess(user_input, target_word, fasttext_model, rankings)
     
     if guessed_correctly:
         print(f"총 도전 횟수: {attempts}번")
