@@ -40,10 +40,10 @@ def calculate_similarity(user_word, target_word, model):
     try:
         user_vec = model.get_word_vector(user_word)  # 사용자 단어 벡터
         target_vec = model.get_word_vector(target_word)  # 목표 단어 벡터
-
      
         similarity = cosine_similarity([user_vec], [target_vec])
         return similarity[0][0]
+    
     except Exception as e:
         print(f"단어 벡터 계산 중 오류가 발생했습니다: {e}")
         return None
