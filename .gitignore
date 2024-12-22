@@ -3,3 +3,5 @@ venv/lib/
 cc.ko.300.bin
 target_word.txt
 first_words.txt
+all_words.txt
+wordcloud_base64.txt
