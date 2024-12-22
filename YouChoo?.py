@@ -42,9 +42,16 @@ def calculate_similarity(user_word, target_word, model):
         return None
 
 def update_and_get_rankings(user_word, similarity_score, rankings):
-    rankings.append((user_word, similarity_score))
-    rankings.sort(key=lambda x: x[1], reverse=True)
-    rank = rankings.index((user_word, similarity_score)) + 1
+    for i, (word, score) in enumerate(rankings):
+        if word == user_word:  # 같은 단어가 이미 랭킹에 있을 경우
+            if similarity_score > score:  # 더 높은 점수가 입력되면 업데이트
+                rankings[i] = (user_word, similarity_score)
+            break
+    else:
+        rankings.append((user_word, similarity_score))  # 새로운 단어 추가
+    
+    rankings.sort(key=lambda x: x[1], reverse=True)  # 유사도 기준으로 정렬
+    rank = next((i + 1 for i, (word, _) in enumerate(rankings) if word == user_word), len(rankings))
     return rank
 
 def display_top_rankings(rankings, top_n=100):
