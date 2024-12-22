@@ -1,3 +1,4 @@
+import time
 from flask import Flask, request, jsonify, render_template
 import random
 import fasttext
@@ -6,6 +7,7 @@ from wordcloud import WordCloud
 import io
 import base64
 from collections import Counter
+import threading
 
 app = Flask(__name__)
 
@@ -43,29 +45,43 @@ def calculate_similarity(user_word, target_word, model):
 
 
 def generate_wordcloud_base64():
-    with open("first_words.txt", "r", encoding="utf-8") as f:
-        words = f.readlines()
+    try:
+        with open("all_words.txt", "r", encoding="utf-8") as f:
+            words = f.readlines()
 
-    words = [word.strip() for word in words]
-    word_counts = Counter(words)
+        words = [word.strip() for word in words]
+        word_counts = Counter(words)
 
-    wordcloud = WordCloud(
-        font_path="assets/fonts/Do_Hyeon/DoHyeon-Regular.ttf",
-        width=800,
-        height=400,
-        background_color="white"
-    ).generate_from_frequencies(word_counts)
+        wordcloud = WordCloud(
+            font_path="assets/fonts/Do_Hyeon/DoHyeon-Regular.ttf",
+            width=800,
+            height=400,
+            background_color="white"
+        ).generate_from_frequencies(word_counts)
 
-    img = io.BytesIO()
-    wordcloud.to_image().save(img, format='PNG')
-    img.seek(0)
-    return base64.b64encode(img.getvalue()).decode()
+        img = io.BytesIO()
+        wordcloud.to_image().save(img, format='PNG')
+        img.seek(0)
+        return base64.b64encode(img.getvalue()).decode()
+    except Exception as e:
+        print(f"워드클라우드 생성 중 오류가 발생했습니다: {e}")
+        return None
 
+
+def update_wordcloud_periodically():
+    while True:
+        try:
+            img_base64 = generate_wordcloud_base64()
+            if img_base64:
+                with open("wordcloud_base64.txt", "w", encoding="utf-8") as f:
+                    f.write(img_base64)
+        except Exception as e:
+            print(f"주기적인 워드클라우드 업데이트 중 오류가 발생했습니다: {e}")
+        time.sleep(60)  # 1분 대기
 
 rankings = []
 attempts = 0
 game_over = False
-
 
 @app.route('/start', methods=['GET'])
 def start_game():
@@ -96,7 +112,7 @@ def guess():
     if user_input == target_word:
         game_over = True
         return jsonify({
-            "message": "축하합니다! 정답입니다!",
+            "message": target_word,  # 정답 전송
             "attempts": attempts + 1,
             "rankings": rankings
         }), 200
@@ -111,19 +127,9 @@ def guess():
     attempts += 1
     rank = update_and_get_rankings(user_input, similarity_score, rankings)
 
-    return jsonify({
-        "user_input": user_input,
-        "similarity_score": similarity_score,
-        "rank": rank,
-        "attempts": attempts
-    }), 200
-
-    similarity_score = calculate_similarity(user_input, target_word, fasttext_model)
-    if similarity_score is None:
-        return jsonify({"error": "유사도 계산에 실패했습니다."}), 500
-
-    attempts += 1
-    rank = update_and_get_rankings(user_input, similarity_score, rankings)
+    # 단어 저장
+    with open("all_words.txt", "a", encoding="utf-8") as f:
+        f.write(user_input + "\n")
 
     return jsonify({
         "user_input": user_input,
@@ -135,11 +141,12 @@ def guess():
 @app.route('/wordcloud', methods=['GET'])
 def wordcloud():
     try:
-        img_base64 = generate_wordcloud_base64()
+        with open("wordcloud_base64.txt", "r", encoding="utf-8") as f:
+            img_base64 = f.read().strip()
         return jsonify({"wordcloud": img_base64}), 200
     except Exception as e:
-        print(f"워드클라우드 생성 중 오류가 발생했습니다: {e}")
-        return jsonify({"error": "워드클라우드를 생성하지 못했습니다."}), 500
+        print(f"워드클라우드 반환 중 오류가 발생했습니다: {e}")
+        return jsonify({"error": "워드클라우드를 가져오지 못했습니다."}), 500
 
 
 def update_and_get_rankings(user_word, similarity_score, rankings):
@@ -156,4 +163,5 @@ def update_and_get_rankings(user_word, similarity_score, rankings):
     return rank
 
 if __name__ == '__main__':
+    threading.Thread(target=update_wordcloud_periodically, daemon=True).start()
     app.run(debug=True)
