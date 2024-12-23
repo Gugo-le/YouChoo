@@ -12,18 +12,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateRankingTable() {
         rankingTable.innerHTML = "";
-        let attemptCount = 1;
 
-        // 유사도 순으로 정렬
-        rankings.sort((a, b) => b.similarity - a.similarity);
+        // 유사도 순으로 정렬된 배열 생성
+        const sortedRankings = [...rankings].sort((a, b) => b.similarity - a.similarity);
 
-        rankings.forEach((item, index) => {
+        // 유사도 순위 계산
+        sortedRankings.forEach((item, rankIndex) => {
+            const inputOrder = rankings.findIndex((originalItem) => originalItem.word === item.word) + 1; // 입력 순서 찾기
+
             const row = document.createElement("tr");
             row.innerHTML = `
-                <td>#${attemptCount++}</td> <!-- 시도 횟수 -->
+                <td>#${inputOrder}</td> <!-- 입력 순서 -->
                 <td>${item.word}</td> <!-- 단어 -->
                 <td>${(item.similarity * 100).toFixed(2)}%</td> <!-- 유사도 -->
-                <td>${index + 1}</td> <!-- 랭킹 (순위 동일) -->
+                <td>${rankIndex + 1}</td> <!-- 랭킹 -->
             `;
             rankingTable.appendChild(row);
         });
