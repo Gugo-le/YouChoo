@@ -1,17 +1,22 @@
 import time
-from flask import Flask, request, jsonify, render_template, session
 import random
 import fasttext
-from sklearn.metrics.pairwise import cosine_similarity
-from wordcloud import WordCloud
 import io
 import base64
-from collections import Counter
 import threading
 import datetime
+import redis
+from wordcloud import WordCloud
+from operator import itemgetter
+from collections import Counter
+from sklearn.metrics.pairwise import cosine_similarity
+from flask import Flask, request, jsonify, render_template, session
+
 
 app = Flask(__name__)
 app.secret_key = 'strawberrycake'
+
+redis_client = redis.StrictRedis(host='localhost', port=6379, db = 0, decode_responses=True)
 
 # FastText 모델 로드
 def load_fasttext_model(file_path):
@@ -46,6 +51,7 @@ def calculate_similarity(user_word, target_word, model):
     except Exception as e:
         print(f"유사도 계산 중 오류: {e}")
         return None
+   
 
 # 워드클라우드 생성
 def generate_wordcloud_base64():
@@ -214,6 +220,35 @@ def wordcloud():
     except Exception as e:
         print(f"워드클라우드 반환 오류: {e}")
         return jsonify({"error": "워드클라우드를 가져올 수 없습니다."}), 500
+
+# 사용자들 텍스트와 그에 맞는 랭킹 저장
+@app.route('/submit', method=['POST'])
+def submit_text():
+    data = request.get_json()
+    user_input = data.get("text", "").strip()
+    similarity = data.get("similarity", 0.0)
+    
+    if not user_input:
+        return jsonify({"error": "텍스트를 입력하세요."}), 400
+    try:
+        redis_client.zadd("text_rankings", {user_input: similarity})
+        return jsonify({"message": "텍스트가 저장되었습니다."}), 200
+    except Exception as e:
+        return jsonify({"error": f"저장 중 오류 발생: {str(e)}"}), 500
+ 
+# 랭킹 조회
+@app.route('/rankings', methods=['GET'])
+def get_rankings():
+    try:
+        # Redis에서 랭킹 데이터 조회
+        rankings = redis_client.zrevrange("text_rankings", 0, 9, withscores=True)
+        formatted_rankings = [
+            {"rank": idx + 1, "text": text, "similarity": round(score, 2)}
+            for idx, (text, score) in enumerate(rankings)
+        ]
+        return jsonify({"rankings": formatted_rankings}), 200
+    except Exception as e:
+        return jsonify({"error": f"랭킹 조회 중 오류 발생: {str(e)}"}), 500
 
 # 워드클라우드 업데이트 스레드 시작
 if __name__ == '__main__':
