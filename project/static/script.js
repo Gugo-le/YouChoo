@@ -33,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${rankIndex + 1}</td> <!-- 랭킹 -->
             `;
             rankingTable.appendChild(row);
-
         });
     }
 
@@ -59,7 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // 게임 정보 업데이트
                 gameInfo.textContent = "게임이 시작되었습니다! 단어를 추측해보세요.";
-
             })
             .catch((error) => console.error("게임 시작 중 오류 발생:", error));
     }
@@ -81,6 +79,19 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch((error) => console.error("포기 처리 중 오류 발생:", error));
     });
+
+    const cookies = document.cookie.split("; ").reduce((acc, cookie) => {
+        const [key, value] = cookie.split("=");
+        acc[key] = value;
+        return acc;
+    }, {});
+
+    if (cookies.game_status === "finished") {
+        gameInfo.textContent = "이미 게임에 참여하셨습니다. 새로고침 후 새로운 게임에 도전하세요.";
+        wordInput.disabled = true;
+        guessButton.disabled = true;
+        giveUpButton.disabled = true;
+    }
 
     guessButton.addEventListener("click", () => {
         const userInput = wordInput.value.trim();
