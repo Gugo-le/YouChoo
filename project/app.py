@@ -1,4 +1,5 @@
 import time
+import schedule
 import random
 import fasttext
 import io
@@ -119,6 +120,22 @@ def update_wordcloud_periodically():
         except Exception as e:
             print(f"워드클라우드 업데이트 오류: {e}")
         time.sleep(60)
+        
+# 워드클라우드 오전 12시 초기화
+def reset_all_words():
+    try:
+        with open("wordcloud_base64.txt", "w", encoding="utf-8") as f:
+            f.write("")
+        print("wordcloud_base64.txt 파일이 초기화되었습니다.")  
+    except Exception as e:
+        print(f"wordcloud_base64.txt 초기화 중 오류: {e}")  
+        
+schedule.every().day.at("00:00").do(reset_all_words)
+
+def schedule_jobs():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)                  
 
 # 전역 상태 변수
 rankings = []
@@ -253,4 +270,5 @@ def get_rankings():
 # 워드클라우드 업데이트 스레드 시작
 if __name__ == '__main__':
     threading.Thread(target=update_wordcloud_periodically, daemon=True).start()
+    threading.Thread(target=schedule_jobs, daemon=True).start()
     app.run(debug=True)
