@@ -222,7 +222,7 @@ def wordcloud():
         return jsonify({"error": "워드클라우드를 가져올 수 없습니다."}), 500
 
 # 사용자들 텍스트와 그에 맞는 랭킹 저장
-@app.route('/submit', method=['POST'])
+@app.route('/submit', methods=['POST'])
 def submit_text():
     data = request.get_json()
     user_input = data.get("text", "").strip()
