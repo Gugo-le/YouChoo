@@ -10,13 +10,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let attempts = 0;
     let rankings = [];
 
-    function updateRankingTable() {
+    function updateRankingTable(lastword) {
         rankingTable.innerHTML = "";
 
-        // 유사도 순으로 정렬된 배열 생성
-        const sortedRankings = [...rankings].sort((a, b) => b.similarity - a.similarity);
+        // 방금 입력한 단어
+        const lastEntry = rankings.find((item) => item.word === lastword);
 
         // 유사도 순위 계산
+        const sortedRankings = [...rankings].sort((a, b) => b.similarity - a.similarity);
+
         sortedRankings.forEach((item, rankIndex) => {
             const inputOrder = rankings.findIndex((originalItem) => originalItem.word === item.word) + 1; // 입력 순서 찾기
 
