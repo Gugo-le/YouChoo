@@ -21,7 +21,6 @@ def load_fasttext_model(file_path):
 
 fasttext_model = load_fasttext_model("cc.ko.300.bin")
 
-
 def get_random_word_from_file(file_path):
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -32,7 +31,6 @@ def get_random_word_from_file(file_path):
         print(f"단어 파일을 읽는 중 오류가 발생했습니다: {e}")
         return None
 
-
 def calculate_similarity(user_word, target_word, model):
     try:
         user_vec = model.get_word_vector(user_word)
@@ -42,7 +40,6 @@ def calculate_similarity(user_word, target_word, model):
     except Exception as e:
         print(f"단어 벡터 계산 중 오류가 발생했습니다: {e}")
         return None
-
 
 def generate_wordcloud_base64():
     try:
@@ -66,7 +63,6 @@ def generate_wordcloud_base64():
     except Exception as e:
         print(f"워드클라우드 생성 중 오류가 발생했습니다: {e}")
         return None
-
 
 def update_wordcloud_periodically():
     while True:
@@ -138,6 +134,19 @@ def guess():
         "attempts": attempts
     }), 200
 
+@app.route('/giveup', methods=['GET'])
+def giveup():
+    global game_over
+    game_over = True
+
+    try:
+        with open("target_word.txt", "r", encoding="utf-8") as f:
+            target_word = f.read().strip()
+        return jsonify({"message": target_word}), 200
+    except Exception as e:
+        print(f"포기 처리 중 오류가 발생했습니다: {e}")
+        return jsonify({"error": "정답을 가져오지 못했습니다."}), 500
+
 @app.route('/wordcloud', methods=['GET'])
 def wordcloud():
     try:
@@ -147,7 +156,6 @@ def wordcloud():
     except Exception as e:
         print(f"워드클라우드 반환 중 오류가 발생했습니다: {e}")
         return jsonify({"error": "워드클라우드를 가져오지 못했습니다."}), 500
-
 
 def update_and_get_rankings(user_word, similarity_score, rankings):
     for i, (word, score) in enumerate(rankings):
