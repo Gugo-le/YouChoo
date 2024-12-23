@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch((error) => console.error("워드클라우드 업데이트 중 오류 발생:", error));
     }
+    setInterval(fetchWordcloud, 5000);
 
     function startGame() {
         if (localStorage.getItem("gameStatus") === "finished") {

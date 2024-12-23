@@ -119,7 +119,7 @@ def update_wordcloud_periodically():
                     f.write(img_base64)
         except Exception as e:
             print(f"워드클라우드 업데이트 오류: {e}")
-        time.sleep(60)
+        time.sleep(5)
         
 # 워드클라우드 오전 12시 초기화
 def reset_all_words():
@@ -135,7 +135,7 @@ schedule.every().day.at("00:00").do(reset_all_words)
 def schedule_jobs():
     while True:
         schedule.run_pending()
-        time.sleep(1)                  
+        time.sleep(5)                  
 
 # 전역 상태 변수
 rankings = []
@@ -238,6 +238,17 @@ def wordcloud():
         print(f"워드클라우드 반환 오류: {e}")
         return jsonify({"error": "워드클라우드를 가져올 수 없습니다."}), 500
 
+
+@app.route('/wordcloud', methods=['GET'])
+def get_wordcloud():
+    try:
+        with open("wordcloud_base64.txt", "r", encoding="utf-8") as f:
+            wordcloud_base64 = f.read()
+        return jsonify({"wordcloud_base64": wordcloud_base64}), 200
+    except Exception as e:
+        print(f"워드클라우드 반환 중 오류: {e}")
+        return jsonify({"error": "워드클라우드를 반환하지 못했습니다."}), 500
+    
 # 사용자들 텍스트와 그에 맞는 랭킹 저장
 @app.route('/submit', methods=['POST'])
 def submit_text():
