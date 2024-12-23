@@ -70,6 +70,9 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((data) => {
                 if (data.message) {
                     gameInfo.textContent = `게임을 포기하셨습니다. 정답은 "${data.message}"입니다.`;
+                    setTimeout(() => {
+                        startGame();
+                    }, 1000);
                 }
             })
             .catch((error) => console.error("포기 처리 중 오류 발생:", error));
