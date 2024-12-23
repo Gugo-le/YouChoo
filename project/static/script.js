@@ -48,6 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function startGame() {
         if (localStorage.getItem("gameStatus") === "finished") {
             gameInfo.textContent = "게임은 하루에 한 번만 가능합니다.";
+            fetchWordcloud();
             wordInput.disabled = true;
             guessButton.disabled = true;
             giveUpButton.disabled = true;
