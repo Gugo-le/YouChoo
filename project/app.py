@@ -9,6 +9,7 @@ import base64
 from collections import Counter
 import threading
 import datetime
+import schedule
 
 app = Flask(__name__)
 app.secret_key = 'strawberrycake'
@@ -69,7 +70,7 @@ def generate_wordcloud_base64():
         print(f"워드클라우드 생성 중 오류: {e}")
         return None
 
-# 랭킹 업데이트
+# 순위 업데이트 및 반환
 def update_and_get_rankings(user_word, similarity_score, rankings):
     for i, (word, score) in enumerate(rankings):
         if word == user_word:
@@ -82,22 +83,39 @@ def update_and_get_rankings(user_word, similarity_score, rankings):
     rankings.sort(key=lambda x: x[1], reverse=True)
     return next((i + 1 for i, (word, _) in enumerate(rankings) if word == user_word), len(rankings))
 
-# 워드클라우드 주기적 업데이트
-def update_wordcloud_periodically():
-    while True:
-        try:
-            img_base64 = generate_wordcloud_base64()
-            if img_base64:
-                with open("wordcloud_base64.txt", "w", encoding="utf-8") as f:
-                    f.write(img_base64)
-        except Exception as e:
-            print(f"워드클라우드 업데이트 오류: {e}")
-        time.sleep(60)
+# 자정에 게임 초기화 및 오늘의 워드클라우드 생성
+def daily_reset():
+    global rankings, attempts, game_over
 
-# 전역 상태 변수
-rankings = []
-attempts = 0
-game_over = False
+    # 목표 단어 초기화
+    target_word = get_daily_target_word("assets/txt/word.txt")
+    if target_word:
+        with open("target_word.txt", "w", encoding="utf-8") as f:
+            f.write(target_word)
+        print("목표 단어가 초기화되었습니다.")
+
+    # 워드클라우드 초기화
+    img_base64 = generate_wordcloud_base64()
+    if img_base64:
+        with open("wordcloud_base64.txt", "w", encoding="utf-8") as f:
+            f.write(img_base64)
+        print("워드클라우드가 초기화되었습니다.")
+
+    # 상태 초기화
+    rankings = []
+    attempts = 0
+    game_over = False
+
+# 워드클라우드 반환
+@app.route('/wordcloud', methods=['GET'])
+def wordcloud():
+    try:
+        with open("wordcloud_base64.txt", "r", encoding="utf-8") as f:
+            img_base64 = f.read().strip()
+        return jsonify({"wordcloud": img_base64}), 200
+    except Exception as e:
+        print(f"워드클라우드 반환 오류: {e}")
+        return jsonify({"error": "워드클라우드를 가져올 수 없습니다."}), 500
 
 # 기본 페이지
 @app.route('/')
@@ -184,18 +202,8 @@ def giveup():
     session["game_status"] = "finished"
     return jsonify({"message": target_word})
 
-# 워드클라우드 반환
-@app.route('/wordcloud', methods=['GET'])
-def wordcloud():
-    try:
-        with open("wordcloud_base64.txt", "r", encoding="utf-8") as f:
-            img_base64 = f.read().strip()
-        return jsonify({"wordcloud": img_base64}), 200
-    except Exception as e:
-        print(f"워드클라우드 반환 오류: {e}")
-        return jsonify({"error": "워드클라우드를 가져올 수 없습니다."}), 500
-
-# 워드클라우드 업데이트 스레드 시작
+# 스케줄링 및 서버 실행
 if __name__ == '__main__':
-    threading.Thread(target=update_wordcloud_periodically, daemon=True).start()
+    schedule.every().day.at("00:00").do(daily_reset)
+    threading.Thread(target=lambda: schedule.run_pending(), daemon=True).start()
     app.run(debug=True)
