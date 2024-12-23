@@ -13,9 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateRankingTable(lastword) {
         rankingTable.innerHTML = "";
 
-        // 방금 입력한 단어
-        const lastEntry = rankings.find((item) => item.word === lastword);
-
         // 유사도 순위 계산
         const sortedRankings = [...rankings].sort((a, b) => b.similarity - a.similarity);
 
@@ -25,11 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>#${inputOrder}</td> <!-- 입력 순서 -->
-                <td>${item.word}</td> <!-- 단어 -->
+                <td style="color: ${item.word === lastword ? 'red' : 'white'};">${item.word}</td> <!-- 단어 -->
                 <td>${(item.similarity * 100).toFixed(2)}%</td> <!-- 유사도 -->
                 <td>${rankIndex + 1}</td> <!-- 랭킹 -->
             `;
             rankingTable.appendChild(row);
+
+            // 입력한 단어 아래 구분선 추가
+            if (item.word === lastword) {
+                const separator = document.createElement("tr");
+                separator.innerHTML = `<td colspan="4" style="solid #ccc;"></td>`;
+                rankingTable.appendChild(separator);
+            }
         });
     }
 
@@ -98,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     rankings.push({ word: data.user_input, similarity: data.similarity_score });
                 }
 
-                updateRankingTable();
+                updateRankingTable(userInput); // 방금 입력한 단어 전달
                 wordInput.value = ""; // 입력 초기화
             })
             .catch((error) => console.error("추측 처리 중 오류 발생:", error));
