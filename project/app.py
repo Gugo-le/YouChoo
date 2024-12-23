@@ -1,3 +1,4 @@
+import datetime
 import time
 from flask import Flask, request, jsonify, render_template
 import random
@@ -79,18 +80,33 @@ rankings = []
 attempts = 0
 game_over = False
 
+import datetime
+
+def get_daily_target_word(file_path):
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            words = f.readlines()
+        today = datetime.date.today()
+        random.seed(today.toordinal())  # 날짜를 기준으로 동일한 난수 생성
+        return random.choice(words).strip()
+    except Exception as e:
+        print(f"목표 단어 설정 중 오류가 발생했습니다: {e}")
+        return None
+
 @app.route('/start', methods=['GET'])
 def start_game():
     global game_over, attempts
     game_over = False
     attempts = 0
 
-    random_word = get_random_word_from_file("assets/txt/word.txt")
-    if random_word:
+    # target_word 하루 고정
+    target_word = get_daily_target_word("assets/txt/word.txt")
+    if target_word:
         with open("target_word.txt", "w", encoding="utf-8") as f:
-            f.write(random_word)
+            f.write(target_word)
         return jsonify({"message": "게임이 시작되었습니다."}), 200
     return jsonify({"error": "랜덤 단어를 생성하지 못했습니다."}), 500
+
 
 @app.route('/guess', methods=['POST'])
 def guess():
@@ -138,14 +154,14 @@ def guess():
 def giveup():
     global game_over
     game_over = True
+    with open("target_word.txt", "r", encoding="utf-8") as f:
+        target_word = f.read().strip()
 
-    try:
-        with open("target_word.txt", "r", encoding="utf-8") as f:
-            target_word = f.read().strip()
-        return jsonify({"message": target_word}), 200
-    except Exception as e:
-        print(f"포기 처리 중 오류가 발생했습니다: {e}")
-        return jsonify({"error": "정답을 가져오지 못했습니다."}), 500
+    response = jsonify({"message": target_word})
+    response.set_cookie("game_status", "finished", max_age=24*60*60)  # 하루 동안 유지
+    return response
+
+
 
 @app.route('/wordcloud', methods=['GET'])
 def wordcloud():
@@ -169,6 +185,14 @@ def update_and_get_rankings(user_word, similarity_score, rankings):
     rankings.sort(key=lambda x: x[1], reverse=True)
     rank = next((i + 1 for i, (word, _) in enumerate(rankings) if word == user_word), len(rankings))
     return rank
+
+@app.route('/check-status', methods=['GET'])
+def check_status():
+    user_status = request.cookies.get("game_status")
+    if user_status == "finished":
+        return jsonify({"status": "finished"}), 200
+    return jsonify({"status": "new"}), 200
+
 
 if __name__ == '__main__':
     threading.Thread(target=update_wordcloud_periodically, daemon=True).start()
