@@ -51,7 +51,7 @@
 ## How to use
 
 ~~~
-pip install schedule fasttext scikit wordcloud matplotlib flask
+pip install schedule fasttext scikit-learn wordcloud matplotlib flask
 ~~~
 - [FastText](https://fasttext.cc)에 들어가서 한국어 모델을 다운로드 하셔서 bin 파일을 프로젝트 폴더에 넣어주시면 됩니다.
 - 사용을 못한다면 sentences.json에서 굉장히 많은 문장을 추가한 다음 train/train.py를 실행시켜 단어를 추출하면 됩니다.
