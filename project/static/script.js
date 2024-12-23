@@ -17,17 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function checkGameStatus() {
-        fetch("/check-status")
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.status === "finished") {
-                    gameInfo.textContent = "이미 게임을 하셨습니다.";
-                    wordInput.disabled = true;
-                    guessButton.disabled = true;
-                    giveUpButton.disabled = true;
-                }
-            })
-            .catch((error) => console.error("게임 상태 확인 중 오류 발생:", error));
+        const gameStatus = localStorage.getItem("game_status");
+
+        if (gameStatus === "finished") {
+            gameInfo.textContent = "이미 게임을 하셨습니다.";
+            wordInput.disabled = true;
+            guessButton.disabled = true;
+            giveUpButton.disabled = true;
+        }
     }
 
     checkGameStatus();
@@ -66,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function startGame() {
         fetch("/start")
             .then((response) => response.json())
-            .then((data) => {
+            .then(() => {
                 attempts = 0;
                 rankings = [];
                 updateRankingTable();
@@ -81,8 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch((error) => console.error("게임 시작 중 오류 발생:", error));
     }
 
-
-
     // 포기하면 정답 나오고 게임 참여 못하게
     giveUpButton.addEventListener("click", () => {
         fetch("/giveup")
@@ -90,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((data) => {
                 if (data.message) {
                     gameInfo.textContent = `게임을 포기하셨습니다. 정답은 "${data.message}"입니다.`;
+                    localStorage.setItem("game_status", "finished"); // 상태 저장
                     setTimeout(() => {
                         updateRankingTable();
                         wordInput.disabled = true;
@@ -101,25 +97,12 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch((error) => console.error("포기 처리 중 오류 발생:", error));
     });
 
-    const cookies = document.cookie.split("; ").reduce((acc, cookie) => {
-        const [key, value] = cookie.split("=");
-        acc[key] = value;
-        return acc;
-    }, {});
-
-    if (cookies.game_status === "finished") {
-        gameInfo.textContent = "이미 게임에 참여하셨습니다.";
-        wordInput.disabled = true;
-        guessButton.disabled = true;
-        giveUpButton.disabled = true;
-    }
-
     guessButton.addEventListener("click", () => {
         const userInput = wordInput.value.trim();
 
         // 영어 입력 감지
         if (containsEnglish(userInput)) {
-            gameInfo.textContent = "영어는 입력할 수 없습니다. 한글 단어를 입력해주세요."
+            gameInfo.textContent = "영어는 입력할 수 없습니다. 한글 단어를 입력해주세요.";
             wordInput.value = ""; // 입력 초기화
             return;
         }
