@@ -28,12 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             rankingTable.appendChild(row);
 
-            // 입력한 단어 아래 구분선 추가
-            if (item.word === lastword) {
-                const separator = document.createElement("tr");
-                separator.innerHTML = `<td colspan="4" style="solid #ccc;"></td>`;
-                rankingTable.appendChild(separator);
-            }
+
         });
     }
 
