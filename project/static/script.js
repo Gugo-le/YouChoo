@@ -10,40 +10,25 @@ document.addEventListener("DOMContentLoaded", () => {
     let attempts = 0;
     let rankings = [];
 
-    // 영어 입력 감지 함수
     function containsEnglish(input) {
         const englishRegex = /[a-zA-Z]/;
         return englishRegex.test(input);
     }
 
-    function checkGameStatus() {
-        const gameStatus = localStorage.getItem("game_status");
-
-        if (gameStatus === "finished") {
-            gameInfo.textContent = "이미 게임을 하셨습니다.";
-            wordInput.disabled = true;
-            guessButton.disabled = true;
-            giveUpButton.disabled = true;
-        }
-    }
-
-    checkGameStatus();
-
     function updateRankingTable(lastword) {
         rankingTable.innerHTML = "";
 
-        // 유사도 순위 계산
         const sortedRankings = [...rankings].sort((a, b) => b.similarity - a.similarity);
 
         sortedRankings.forEach((item, rankIndex) => {
-            const inputOrder = rankings.findIndex((originalItem) => originalItem.word === item.word) + 1; // 입력 순서 찾기
+            const inputOrder = rankings.findIndex((originalItem) => originalItem.word === item.word) + 1;
 
             const row = document.createElement("tr");
             row.innerHTML = `
-                <td>#${inputOrder}</td> <!-- 입력 순서 -->
-                <td style="color: ${item.word === lastword ? 'red' : 'white'};">${item.word}</td> <!-- 단어 -->
-                <td>${(item.similarity * 100).toFixed(2)}%</td> <!-- 유사도 -->
-                <td>${rankIndex + 1}</td> <!-- 랭킹 -->
+                <td>#${inputOrder}</td>
+                <td style="color: ${item.word === lastword ? 'red' : 'white'};">${item.word}</td>
+                <td>${(item.similarity * 100).toFixed(2)}%</td>
+                <td>${rankIndex + 1}</td>
             `;
             rankingTable.appendChild(row);
         });
@@ -61,15 +46,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startGame() {
+        if (localStorage.getItem("gameStatus") === "finished") {
+            gameInfo.textContent = "게임은 하루에 한 번만 가능합니다.";
+            wordInput.disabled = true;
+            guessButton.disabled = true;
+            giveUpButton.disabled = true;
+            return;
+        }
+
         fetch("/start")
             .then((response) => response.json())
-            .then(() => {
+            .then((data) => {
                 attempts = 0;
                 rankings = [];
                 updateRankingTable();
                 fetchWordcloud();
 
-                // 게임 정보 및 UI 상태 업데이트
                 gameInfo.textContent = "게임이 시작되었습니다! 단어를 추측해보세요.";
                 wordInput.disabled = false;
                 guessButton.disabled = false;
@@ -78,32 +70,12 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch((error) => console.error("게임 시작 중 오류 발생:", error));
     }
 
-    // 포기하면 정답 나오고 게임 참여 못하게
-    giveUpButton.addEventListener("click", () => {
-        fetch("/giveup")
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.message) {
-                    gameInfo.textContent = `게임을 포기하셨습니다. 정답은 "${data.message}"입니다.`;
-                    localStorage.setItem("game_status", "finished"); // 상태 저장
-                    setTimeout(() => {
-                        updateRankingTable();
-                        wordInput.disabled = true;
-                        guessButton.disabled = true;
-                        giveUpButton.disabled = true;
-                    }, 1000);
-                }
-            })
-            .catch((error) => console.error("포기 처리 중 오류 발생:", error));
-    });
-
     guessButton.addEventListener("click", () => {
         const userInput = wordInput.value.trim();
 
-        // 영어 입력 감지
         if (containsEnglish(userInput)) {
             gameInfo.textContent = "영어는 입력할 수 없습니다. 한글 단어를 입력해주세요.";
-            wordInput.value = ""; // 입력 초기화
+            wordInput.value = "";
             return;
         }
 
@@ -123,15 +95,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                // 정답 처리
-                if (data.message) { // JSON 응답에서 정답 메시지
+                if (data.message) {
                     gameInfo.textContent = `🎉 축하합니다. ${attempts + 1}번째만에 정답을 맞췄습니다!`;
+                    localStorage.setItem("gameStatus", "finished");
+                    wordInput.disabled = true;
+                    guessButton.disabled = true;
+                    giveUpButton.disabled = true;
                     return;
                 }
 
                 attempts = data.attempts;
 
-                // 유사도 저장
                 const existingIndex = rankings.findIndex((item) => item.word === data.user_input);
                 if (existingIndex !== -1) {
                     rankings[existingIndex].similarity = Math.max(
@@ -142,12 +116,26 @@ document.addEventListener("DOMContentLoaded", () => {
                     rankings.push({ word: data.user_input, similarity: data.similarity_score });
                 }
 
-                updateRankingTable(userInput); // 방금 입력한 단어 전달
-                wordInput.value = ""; // 입력 초기화
+                updateRankingTable(userInput);
+                wordInput.value = "";
             })
             .catch((error) => console.error("추측 처리 중 오류 발생:", error));
     });
 
-    // 페이지 로드 시 게임 자동 시작
+    giveUpButton.addEventListener("click", () => {
+        fetch("/giveup")
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.message) {
+                    gameInfo.textContent = `게임을 포기하셨습니다. 정답은 "${data.message}"입니다.`;
+                    localStorage.setItem("gameStatus", "finished");
+                    wordInput.disabled = true;
+                    guessButton.disabled = true;
+                    giveUpButton.disabled = true;
+                }
+            })
+            .catch((error) => console.error("포기 처리 중 오류 발생:", error));
+    });
+
     startGame();
 });
