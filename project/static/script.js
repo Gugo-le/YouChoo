@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch((error) => console.error("게임 시작 중 오류 발생:", error));
     }
 
+    // 포기하면 정답 나오고 게임 참여 못하게
     giveUpButton.addEventListener("click", () => {
         fetch("/giveup")
             .then((response) => response.json())
@@ -71,7 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (data.message) {
                     gameInfo.textContent = `게임을 포기하셨습니다. 정답은 "${data.message}"입니다.`;
                     setTimeout(() => {
-                        startGame();
+                        updateRankingTable();
+                        wordInput.disabled = true;
+                        guessButton.disabled = true;
+                        giveUpButton.disabled = true;
                     }, 1000);
                 }
             })
