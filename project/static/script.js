@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 updateRankingTable();
                 fetchWordcloud();
 
-                gameInfo.textContent = "게임이 시작되었습니다! 단어를 추측해보세요.";
+                gameInfo.textContent = "인공지능은 어떤 단어를 생각하고 있을까요?";
                 wordInput.disabled = false;
                 guessButton.disabled = false;
                 giveUpButton.disabled = false;
