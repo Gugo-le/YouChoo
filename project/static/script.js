@@ -28,18 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>#${inputOrder}</td> <!-- 입력 순서 -->
-                <td style="color: ${item.word === lastword ? 'red' : 'black'};">${item.word}</td> <!-- 단어 -->
+                <td style="color: ${item.word === lastword ? 'red' : 'white'};">${item.word}</td> <!-- 단어 -->
                 <td>${(item.similarity * 100).toFixed(2)}%</td> <!-- 유사도 -->
                 <td>${rankIndex + 1}</td> <!-- 랭킹 -->
             `;
             rankingTable.appendChild(row);
 
-            // 입력한 단어 아래 구분선 추가
-            if (item.word === lastword) {
-                const separator = document.createElement("tr");
-                separator.innerHTML = `<td colspan="4" style="border-bottom: 2px solid #ccc;"></td>`;
-                rankingTable.appendChild(separator);
-            }
         });
     }
 
@@ -65,17 +59,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // 게임 정보 업데이트
                 gameInfo.textContent = "게임이 시작되었습니다! 단어를 추측해보세요.";
-                alert(data.message); // 시작 메시지 표시
+
             })
             .catch((error) => console.error("게임 시작 중 오류 발생:", error));
     }
+
+    giveUpButton.addEventListener("click", () => {
+        fetch("/giveup")
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.message) {
+                    gameInfo.textContent = `게임을 포기하셨습니다. 정답은 "${data.message}"입니다.`;
+                }
+            })
+            .catch((error) => console.error("포기 처리 중 오류 발생:", error));
+    });
 
     guessButton.addEventListener("click", () => {
         const userInput = wordInput.value.trim();
 
         // 영어 입력 감지
         if (containsEnglish(userInput)) {
-            alert("영어는 입력할 수 없습니다. 한글 단어를 입력해주세요.");
+            gameInfo.textContent = "영어는 입력할 수 없습니다. 한글 단어를 입력해주세요."
             wordInput.value = ""; // 입력 초기화
             return;
         }
@@ -98,8 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // 정답 처리
                 if (data.message) { // JSON 응답에서 정답 메시지
-                    gameInfo.textContent = `정답을 맞췄습니다! 정답: ${data.message}`;
-                    alert(`정답입니다! 🎉 정답은 '${data.message}'입니다.`);
+                    gameInfo.textContent = `🎉 축하합니다. ${attempts + 1}번째만에 정답을 맞췄습니다!`;
                     return;
                 }
 
@@ -120,10 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 wordInput.value = ""; // 입력 초기화
             })
             .catch((error) => console.error("추측 처리 중 오류 발생:", error));
-    });
-
-    giveUpButton.addEventListener("click", () => {
-        alert("게임을 포기했습니다. 정답은 페이지에서 확인하세요.");
     });
 
     // 페이지 로드 시 게임 자동 시작
