@@ -16,6 +16,22 @@ document.addEventListener("DOMContentLoaded", () => {
         return englishRegex.test(input);
     }
 
+    function checkGameStatus() {
+        fetch("/check-status")
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.status === "finished") {
+                    gameInfo.textContent = "이미 게임을 하셨습니다.";
+                    wordInput.disabled = true;
+                    guessButton.disabled = true;
+                    giveUpButton.disabled = true;
+                }
+            })
+            .catch((error) => console.error("게임 상태 확인 중 오류 발생:", error));
+    }
+
+    checkGameStatus();
+
     function updateRankingTable(lastword) {
         rankingTable.innerHTML = "";
 
@@ -51,32 +67,20 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch("/start")
             .then((response) => response.json())
             .then((data) => {
-                if (data.message) {
-                    gameInfo.textContent = "게임이 시작되었습니다! 단어를 추측해보세요.";
-                    wordInput.disabled = false;
-                    guessButton.disabled = false;
-                    giveUpButton.disabled = false;
-                }
+                attempts = 0;
+                rankings = [];
+                updateRankingTable();
+                fetchWordcloud();
+
+                // 게임 정보 및 UI 상태 업데이트
+                gameInfo.textContent = "게임이 시작되었습니다! 단어를 추측해보세요.";
+                wordInput.disabled = false;
+                guessButton.disabled = false;
+                giveUpButton.disabled = false;
             })
             .catch((error) => console.error("게임 시작 중 오류 발생:", error));
     }
 
-
-    function checkGameStatus() {
-        fetch("/check-status")
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.status === "finished") {
-                    gameInfo.textContent = "이미 게임을 하셨습니다.";
-                    wordInput.disabled = true;
-                    guessButton.disabled = true;
-                    giveUpButton.disabled = true;
-                }
-            })
-            .catch((error) => console.error("게임 상태 확인 중 오류 발생:", error));
-    }
-
-    checkGameStatus();
 
 
     // 포기하면 정답 나오고 게임 참여 못하게
