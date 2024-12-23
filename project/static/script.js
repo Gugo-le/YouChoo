@@ -10,6 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let attempts = 0;
     let rankings = [];
 
+    // 영어 입력 감지 함수
+    function containsEnglish(input) {
+        const englishRegex = /[a-zA-Z]/;
+        return englishRegex.test(input);
+    }
+
     function updateRankingTable(lastword) {
         rankingTable.innerHTML = "";
 
@@ -22,13 +28,18 @@ document.addEventListener("DOMContentLoaded", () => {
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>#${inputOrder}</td> <!-- 입력 순서 -->
-                <td style="color: ${item.word === lastword ? 'red' : 'white'};">${item.word}</td> <!-- 단어 -->
+                <td style="color: ${item.word === lastword ? 'red' : 'black'};">${item.word}</td> <!-- 단어 -->
                 <td>${(item.similarity * 100).toFixed(2)}%</td> <!-- 유사도 -->
                 <td>${rankIndex + 1}</td> <!-- 랭킹 -->
             `;
             rankingTable.appendChild(row);
 
-
+            // 입력한 단어 아래 구분선 추가
+            if (item.word === lastword) {
+                const separator = document.createElement("tr");
+                separator.innerHTML = `<td colspan="4" style="border-bottom: 2px solid #ccc;"></td>`;
+                rankingTable.appendChild(separator);
+            }
         });
     }
 
@@ -61,6 +72,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     guessButton.addEventListener("click", () => {
         const userInput = wordInput.value.trim();
+
+        // 영어 입력 감지
+        if (containsEnglish(userInput)) {
+            alert("영어는 입력할 수 없습니다. 한글 단어를 입력해주세요.");
+            wordInput.value = ""; // 입력 초기화
+            return;
+        }
+
         if (!userInput) return;
 
         fetch("/guess", {
