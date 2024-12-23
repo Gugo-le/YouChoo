@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, {});
 
     if (cookies.game_status === "finished") {
-        gameInfo.textContent = "이미 게임에 참여하셨습니다. 새로고침 후 새로운 게임에 도전하세요.";
+        gameInfo.textContent = "이미 게임에 참여하셨습니다.";
         wordInput.disabled = true;
         guessButton.disabled = true;
         giveUpButton.disabled = true;

@@ -141,6 +141,7 @@ def guess():
     with open("target_word.txt", "r", encoding="utf-8") as f:
         target_word = f.read().strip()
 
+    # 정답 확인
     if user_input == target_word:
         game_over = True
         session["game_status"] = "finished"
@@ -150,12 +151,18 @@ def guess():
             "rankings": rankings
         }), 200
 
+    # 유사도 계산
     similarity_score = calculate_similarity(user_input, target_word, fasttext_model)
     if similarity_score is None:
         return jsonify({"error": "유사도 계산에 실패했습니다."}), 500
 
+    # float32 -> float 변환
+    similarity_score = float(similarity_score)
+
     attempts += 1
     rank = update_and_get_rankings(user_input, similarity_score, rankings)
+
+    # 입력 단어 기록
     with open("all_words.txt", "a", encoding="utf-8") as f:
         f.write(user_input + "\n")
 
