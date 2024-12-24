@@ -269,7 +269,7 @@ def submit_text():
 def get_rankings():
     try:
         # Redis에서 랭킹 데이터 조회
-        rankings = redis_client.zrevrange("text_rankings", 0, 9, withscores=True)
+        rankings = redis_client.zrevrange("text_rankings", 0, -1, withscores=True)
         formatted_rankings = [
             {"rank": idx + 1, "text": text, "similarity": round(score, 2)}
             for idx, (text, score) in enumerate(rankings)
