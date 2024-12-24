@@ -6,6 +6,7 @@ import io
 import base64
 import threading
 import datetime
+import uuid
 import redis
 from wordcloud import WordCloud
 from operator import itemgetter
@@ -17,8 +18,14 @@ from flask import Flask, request, jsonify, render_template, session
 app = Flask(__name__)
 app.secret_key = 'strawberrycake'
 
-redis_client = redis.StrictRedis(host='localhost', port=6379, db = 0, decode_responses=True)
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 
+# 사용자 고유 ID 생성
+@app.before_request
+def ensure_user_id():
+    if "user_id" not in session:
+        session["user_id"] = str(uuid.uuid4())
+        
 # FastText 모델 로드
 def load_fasttext_model(file_path):
     try:
@@ -42,8 +49,6 @@ def get_daily_target_word(file_path):
         print(f"목표 단어 생성 중 오류: {e}")
         return None
 
-
-
 # 유사도 계산 함수
 def calculate_similarity(user_word, target_word, model):
     try:
@@ -54,7 +59,6 @@ def calculate_similarity(user_word, target_word, model):
     except Exception as e:
         print(f"유사도 계산 중 오류: {e}")
         return None
-   
 
 # 워드클라우드 생성
 def generate_wordcloud_base64():
@@ -78,13 +82,12 @@ def generate_wordcloud_base64():
         print(f"워드클라우드 생성 중 오류: {e}")
         return None
 
-
 def daily_reset():
     global rankings, attempts, game_over
     
     target_word = get_daily_target_word("assets/txt/word.txt")
     if target_word:
-        with open("target_word.txt", "w", encoding = "utf-8") as f:
+        with open("target_word.txt", "w", encoding="utf-8") as f:
             f.write(target_word)
         print("목표 단어가 초기화되었습니다.")    
         
@@ -201,7 +204,7 @@ def guess():
 
     data = request.get_json()
     user_input = data.get("user_input", "").strip()
-    user_id = session.get("user_id", "default_user")
+    user_id = session.get("user_id")
 
     if not user_input:
         return jsonify({"error": "단어를 입력하세요."}), 400
@@ -266,7 +269,6 @@ def wordcloud():
         print(f"워드클라우드 반환 오류: {e}")
         return jsonify({"error": "워드클라우드를 가져올 수 없습니다."}), 500
 
-
 @app.route('/wordcloud', methods=['GET'])
 def get_wordcloud():
     try:
@@ -310,5 +312,3 @@ if __name__ == '__main__':
     threading.Thread(target=update_wordcloud_periodically, daemon=True).start()
     threading.Thread(target=schedule_jobs, daemon=True).start()
     app.run(debug=True)
-    app.run(host='192.168.0.11')
-    app.run(host='0.0.0.0')
