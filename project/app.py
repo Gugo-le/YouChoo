@@ -269,7 +269,7 @@ def submit_text():
 def get_rankings():
     try:
         # Redis에서 랭킹 데이터 조회
-        rankings = redis_client.zrevrange("text_rankings", 0, -1, withscores=True)
+        rankings = redis_client.zrevrange("text_rankings", 0, 9, withscores=True)
         formatted_rankings = [
             {"rank": idx + 1, "text": text, "similarity": round(score, 2)}
             for idx, (text, score) in enumerate(rankings)
@@ -278,7 +278,7 @@ def get_rankings():
     except Exception as e:
         return jsonify({"error": f"랭킹 조회 중 오류 발생: {str(e)}"}), 500
 
-
+# 워드클라우드 업데이트 스레드 시작
 if __name__ == '__main__':
     threading.Thread(target=update_wordcloud_periodically, daemon=True).start()
     threading.Thread(target=schedule_jobs, daemon=True).start()
