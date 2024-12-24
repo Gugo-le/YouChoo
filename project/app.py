@@ -278,7 +278,7 @@ def get_rankings():
     except Exception as e:
         return jsonify({"error": f"랭킹 조회 중 오류 발생: {str(e)}"}), 500
 
-# 워드클라우드 업데이트 스레드 시작
+
 if __name__ == '__main__':
     threading.Thread(target=update_wordcloud_periodically, daemon=True).start()
     threading.Thread(target=schedule_jobs, daemon=True).start()
