@@ -158,17 +158,19 @@ def check_status():
     return jsonify({"status": "new"})
 
 # 정답 맞춘 사용자 정보 저장
-def save_correct_user(user_word, attempts, user_id):
+def save_correct_user(user_id, user_word, attempts):
     try:
-        redis_key = f"{user_id}: {user_word}"
-        redis_client.zadd(f"correct_users: {user_id}", {redis_key: attempts})
+        attempts = float(attempts)
+        redis_key = f"{user_id}:{user_word}"
+        redis_client.zadd("correct_users", {redis_key: attempts})
+        print(f"정답 사용자 {user_id} 저장 완료: {user_word}, 시도 횟수: {attempts}")
     except Exception as e:
         print(f"정답 사용자 저장 중 오류: {e}")
 
 # 정답 맞춘 사용자 랭킹 조회
 def get_correct_user_rank(user_id, user_word):
     try:
-        redis_key = f"{user_id}: {user_word}"
+        redis_key = f"{user_id}:{user_word}"
         rank = redis_client.zrevrank("correct_users", redis_key)
         if rank is not None:
             return rank + 1
@@ -197,17 +199,13 @@ def start_game():
 def guess():
     global game_over, attempts, rankings
 
-    # JSON 데이터 받기
     data = request.get_json()
     user_input = data.get("user_input", "").strip()
-    user_id = session.get("user_id", "anonymous")
-    attempts = int(data.get("attempts", 0)) 
+    user_id = session.get("user_id", "default_user")
 
-    # 유효한 단어 입력 체크
     if not user_input:
         return jsonify({"error": "단어를 입력하세요."}), 400
 
-    # 정답 단어 읽기
     with open("target_word.txt", "r", encoding="utf-8") as f:
         target_word = f.read().strip()
 
@@ -216,14 +214,14 @@ def guess():
         game_over = True
         session["game_status"] = "finished"
         save_correct_user(user_id, user_input, attempts + 1)
-        # 랭킹 업뎃하고 바로 조회
-        rank = get_correct_user_rank(user_input)
+        rank = get_correct_user_rank(user_id, user_input)
         user_message = f"🎉 축하합니다. {attempts + 1}번째 만에 정답을 맞췄습니다! 랭킹은 {rank}위 입니다."
         return jsonify({
             "message": target_word,
             "attempts": attempts + 1,
             "rankings": rankings,
             "rank": rank,
+            "user_message": user_message
         }), 200
 
     # 유사도 계산
@@ -231,13 +229,11 @@ def guess():
     if similarity_score is None:
         return jsonify({"error": "유사도 계산에 실패했습니다."}), 500
 
-    # float32 -> float 변환
     similarity_score = float(similarity_score)
 
     attempts += 1
     rank = update_and_get_rankings(user_input, similarity_score, rankings)
 
-    # 입력 단어 기록
     with open("all_words.txt", "a", encoding="utf-8") as f:
         f.write(user_input + "\n")
 

@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return englishRegex.test(input);
     }
 
-    function updateRankingTable(lastword) {
+    function updateRankingTable(rankings, lastword) {
         rankingTable.innerHTML = "";
 
         const sortedRankings = [...rankings].sort((a, b) => b.similarity - a.similarity);
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((data) => {
                 attempts = 0;
                 rankings = [];
-                updateRankingTable();
+                updateRankingTable(rankings);
                 fetchRankings();
                 fetchWordcloud();
 
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 if (data.message) {
-                    gameInfo.textContent = `🎉 축하합니다. ${attempts + 1}번째만에 정답을 맞췄습니다! 랭킹은 ${data.rank}위 입니다.`;
+                    gameInfo.textContent = `🎉 축하합니다. ${data.attempts}번째만에 정답을 맞췄습니다! 랭킹은 ${data.rank}위 입니다.`;
                     localStorage.setItem("gameStatus", "finished");
                     wordInput.disabled = true;
                     guessButton.disabled = true;
@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     rankings.push({ word: data.user_input, similarity: data.similarity_score });
                 }
 
-                updateRankingTable(userInput);
+                updateRankingTable(rankings, userInput);
                 wordInput.value = "";
             })
             .catch((error) => console.error("추측 처리 중 오류 발생:", error));
