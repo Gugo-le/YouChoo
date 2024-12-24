@@ -42,6 +42,8 @@ def get_daily_target_word(file_path):
         print(f"목표 단어 생성 중 오류: {e}")
         return None
 
+
+
 # 유사도 계산 함수
 def calculate_similarity(user_word, target_word, model):
     try:
@@ -156,16 +158,18 @@ def check_status():
     return jsonify({"status": "new"})
 
 # 정답 맞춘 사용자 정보 저장
-def save_correct_user(user_word, attempts):
+def save_correct_user(user_word, attempts, user_id):
     try:
-        redis_client.zadd("correct_users", {user_word: attempts})
+        redis_key = f"{user_id}: {user_word}"
+        redis_client.zadd("correct_users", {redis_key: attempts})
     except Exception as e:
         print(f"정답 사용자 저장 중 오류: {e}")
 
 # 정답 맞춘 사용자 랭킹 조회
-def get_correct_user_rank(user_word):
+def get_correct_user_rank(user_id, user_word):
     try:
-        rank = redis_client.zrevrank("correct_users", user_word)
+        redis_key = f"{user_id}: {user_word}"
+        rank = redis_client.zrevrank("correct_users", redis_key)
         if rank is not None:
             return rank + 1
         return None
@@ -195,6 +199,7 @@ def guess():
 
     data = request.get_json()
     user_input = data.get("user_input", "").strip()
+    user_id = session.get("user_id", "anonymous")
 
     if not user_input:
         return jsonify({"error": "단어를 입력하세요."}), 400
@@ -305,3 +310,5 @@ if __name__ == '__main__':
     threading.Thread(target=update_wordcloud_periodically, daemon=True).start()
     threading.Thread(target=schedule_jobs, daemon=True).start()
     app.run(debug=True)
+    app.run(host='192.168.0.11')
+    app.run(host='0.0.0.0')
