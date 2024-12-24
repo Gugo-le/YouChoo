@@ -142,6 +142,24 @@ rankings = []
 attempts = 0
 game_over = False
 
+# 정답 맞춘 사용자 정보 저장
+def save_correct_user(user_word, attempts):
+    try:
+        redis_client.zadd("correct_users", {user_word: attempts})
+    except Exception as e:
+        print(f"정답 사용자 저장 중 오류: {e}")
+
+# 정답 맞춘 사용자 랭킹 조회
+def get_correct_user_rank(user_word):
+    try:
+        rank = redis_client.zrevrank("correct_users", user_word)
+        if rank is not None:
+            return rank + 1
+        return None
+    except Exception as e:
+        print(f"정답 사용자 랭킹 조회 중 오류: {e}")
+        return None
+
 # 기본 페이지
 @app.route('/')
 def index():
@@ -188,10 +206,13 @@ def guess():
     if user_input == target_word:
         game_over = True
         session["game_status"] = "finished"
+        save_correct_user(user_input, attempts + 1)
+        rank = get_correct_user_rank(user_input)
         return jsonify({
             "message": target_word,
             "attempts": attempts + 1,
-            "rankings": rankings
+            "rankings": rankings,
+            "user_rank": rank
         }), 200
 
     # 유사도 계산
@@ -277,6 +298,20 @@ def get_rankings():
         return jsonify({"rankings": formatted_rankings}), 200
     except Exception as e:
         return jsonify({"error": f"랭킹 조회 중 오류 발생: {str(e)}"}), 500
+
+# 사용자 랭킹 조회
+@app.route('/user-rankings', methods=['GET'])
+def get_user_rankings():
+    try:
+        # Redis에서 정답 사용자 랭킹 데이터 조회
+        user_rankings = redis_client.zrevrange("correct_users", 0, 4, withscores=True)
+        formatted_user_rankings = [
+            {"rank": idx + 1, "user": user, "attempts": int(attempts)}
+            for idx, (user, attempts) in enumerate(user_rankings)
+        ]
+        return jsonify({"user_rankings": formatted_user_rankings}), 200
+    except Exception as e:
+        return jsonify({"error": f"사용자 랭킹 조회 중 오류 발생: {str(e)}"}), 500
 
 # 워드클라우드 업데이트 스레드 시작
 if __name__ == '__main__':
