@@ -24,7 +24,7 @@
 - 유사도는 단어의 철자가 비슷한 것이 아닌 의미에 대한 유사도입니다.
 >> 예를 들어 나는 00에 간다. 00 안에 들어가는 단어는 수도없이 많습니다.
 
-## output
+## output(YouChoo?.py)
 <table>
   <tr>
     <td><img src="assets/imgs/output3.png" width="200"></td>
