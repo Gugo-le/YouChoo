@@ -97,6 +97,10 @@ def daily_reset():
             f.write(img_base64)
         print("어제의 워드클라우드가 초기화되었습니다.")
         
+    # 랭킹 초기화
+    redis_client.delete("correct_users")
+    print("랭킹이 초기화되었습니다.")
+    
     rankings = []
     attempts = 0
     game_over = False            
