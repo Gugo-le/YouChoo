@@ -82,6 +82,7 @@ def generate_wordcloud_base64():
         print(f"워드클라우드 생성 중 오류: {e}")
         return None
 
+# 랭킹, 목표 단어, 워드클라우드 초기화
 def daily_reset():
     global rankings, attempts, game_over
     
@@ -128,19 +129,22 @@ def update_wordcloud_periodically():
                     f.write(img_base64)
         except Exception as e:
             print(f"워드클라우드 업데이트 오류: {e}")
-        time.sleep(5)
+        time.sleep(10)
         
 # 워드클라우드 오전 12시 초기화
 def reset_all_words():
     try:
         with open("wordcloud_base64.txt", "w", encoding="utf-8") as f:
             f.write("")
-        print("wordcloud_base64.txt 파일이 초기화되었습니다.")  
+        print("wordcloud_base64.txt 파일이 초기화되었습니다.")
+        print("모든 단어가 초기화되었습니다.")
     except Exception as e:
         print(f"wordcloud_base64.txt 초기화 중 오류: {e}")  
         
 schedule.every().day.at("00:00").do(reset_all_words)
+schedule.every().day.at("00:00").do(daily_reset)
 
+# 5초마다 예약된 작업 있는지 확인 후 오전 12시 되면 함수 실행
 def schedule_jobs():
     while True:
         schedule.run_pending()
@@ -251,7 +255,7 @@ def guess():
         "attempts": attempts
     }), 200
 
-# 포기
+# 포기: 정답 반환, 세션 정보 업데이트
 @app.route('/giveup', methods=['GET'])
 def giveup():
     global game_over
@@ -273,6 +277,7 @@ def wordcloud():
         print(f"워드클라우드 반환 오류: {e}")
         return jsonify({"error": "워드클라우드를 가져올 수 없습니다."}), 500
 
+# 워드클라우드 api
 @app.route('/wordcloud', methods=['GET'])
 def get_wordcloud():
     try:
