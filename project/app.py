@@ -142,6 +142,19 @@ rankings = []
 attempts = 0
 game_over = False
 
+# 기본 페이지
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# 게임 상태 확인
+@app.route('/check-status', methods=['GET'])
+def check_status():
+    user_status = session.get("game_status")
+    if user_status == "finished":
+        return jsonify({"status": "finished"})
+    return jsonify({"status": "new"})
+
 # 정답 맞춘 사용자 정보 저장
 def save_correct_user(user_word, attempts):
     try:
@@ -159,19 +172,6 @@ def get_correct_user_rank(user_word):
     except Exception as e:
         print(f"정답 사용자 랭킹 조회 중 오류: {e}")
         return None
-
-# 기본 페이지
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-# 게임 상태 확인
-@app.route('/check-status', methods=['GET'])
-def check_status():
-    user_status = session.get("game_status")
-    if user_status == "finished":
-        return jsonify({"status": "finished"})
-    return jsonify({"status": "new"})
 
 # 게임 시작
 @app.route('/start', methods=['GET'])
@@ -207,12 +207,14 @@ def guess():
         game_over = True
         session["game_status"] = "finished"
         save_correct_user(user_input, attempts + 1)
+        # 랭킹 업뎃하고 바로 조회
         rank = get_correct_user_rank(user_input)
+        user_message = f"🎉 축하합니다. {attempts + 1}번째 만에 정답을 맞췄습니다! 랭킹은 {rank}위 입니다."
         return jsonify({
             "message": target_word,
             "attempts": attempts + 1,
             "rankings": rankings,
-            "user_rank": rank
+            "rank": rank,
         }), 200
 
     # 유사도 계산
@@ -299,21 +301,6 @@ def get_rankings():
     except Exception as e:
         return jsonify({"error": f"랭킹 조회 중 오류 발생: {str(e)}"}), 500
 
-# 사용자 랭킹 조회
-@app.route('/user-rankings', methods=['GET'])
-def get_user_rankings():
-    try:
-        # Redis에서 정답 사용자 랭킹 데이터 조회
-        user_rankings = redis_client.zrevrange("correct_users", 0, 4, withscores=True)
-        formatted_user_rankings = [
-            {"rank": idx + 1, "user": user, "attempts": int(attempts)}
-            for idx, (user, attempts) in enumerate(user_rankings)
-        ]
-        return jsonify({"user_rankings": formatted_user_rankings}), 200
-    except Exception as e:
-        return jsonify({"error": f"사용자 랭킹 조회 중 오류 발생: {str(e)}"}), 500
-
-# 워드클라우드 업데이트 스레드 시작
 if __name__ == '__main__':
     threading.Thread(target=update_wordcloud_periodically, daemon=True).start()
     threading.Thread(target=schedule_jobs, daemon=True).start()

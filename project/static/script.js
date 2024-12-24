@@ -34,6 +34,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function fetchRankings(lastword) {
+        fetch("/rankings")
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.rankings) {
+                    updateRankingTable(data.rankings, lastword);
+                }
+            })
+            .catch((error) => console.error("랭킹 조회 중 오류 발생:", error));
+    }
+
     function fetchWordcloud() {
         fetch("/wordcloud")
             .then((response) => response.json())
@@ -62,6 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 attempts = 0;
                 rankings = [];
                 updateRankingTable();
+                fetchRankings();
                 fetchWordcloud();
 
                 gameInfo.textContent = "인공지능은 어떤 단어를 생각하고 있을까요?";
@@ -76,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const userInput = wordInput.value.trim();
 
         if (containsEnglish(userInput)) {
-            gameInfo.textContent = "영어는 입력할 수 없습니다. 한글 단어를 입력해주세요.";
+            gameInfo.textContent = "‼️영어는 입력할 수 없습니다. 한글 단어를 입력해주세요.";
             wordInput.value = "";
             return;
         }
@@ -98,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 if (data.message) {
-                    gameInfo.textContent = `🎉 축하합니다. ${attempts + 1}번째만에 정답을 맞췄습니다!`;
+                    gameInfo.textContent = `🎉 축하합니다. ${attempts + 1}번째만에 정답을 맞췄습니다! 랭킹은 ${data.rank}위 입니다.`;
                     localStorage.setItem("gameStatus", "finished");
                     wordInput.disabled = true;
                     guessButton.disabled = true;

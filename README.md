@@ -44,14 +44,12 @@
 - [ ] 사용자 랭킹 시스템 top5 -> n번째만에 맞추셨습니다. 랭킹은 n위입니다.
 - [x] 1초에 한 번씩 워드클라우드 업데이트
 - [x] 워드클라우드 오전 12시 되면 초기화
-- [ ] 정답 맞추면 이벤트 발생
 - [x] 영어 입력 alert to gameinfo()
-
 
 ## How to use
 
 ~~~
-pip install schedule fasttext scikit-learn wordcloud matplotlib flask
+pip install schedule fasttext scikit-learn wordcloud matplotlib flask redis
 ~~~
 - [FastText](https://fasttext.cc)에 들어가서 한국어 모델을 다운로드 하셔서 bin 파일을 프로젝트 폴더에 넣어주시면 됩니다.
 - 사용을 못한다면 sentences.json에서 굉장히 많은 문장을 추가한 다음 train/train.py를 실행시켜 단어를 추출하면 됩니다.
