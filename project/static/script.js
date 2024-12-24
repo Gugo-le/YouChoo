@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const userInput = wordInput.value.trim();
 
         if (containsEnglish(userInput)) {
-            gameInfo.textContent = "‼️영어는 입력할 수 없습니다. 한글 단어를 입력해주세요.";
+            gameInfo.textContent = "‼️영어는 입력할 수 없습니다. 한글 단어를 입력해주세요.‼️";
             wordInput.value = "";
             return;
         }
