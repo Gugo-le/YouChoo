@@ -161,7 +161,7 @@ def check_status():
 def save_correct_user(user_word, attempts, user_id):
     try:
         redis_key = f"{user_id}: {user_word}"
-        redis_client.zadd("correct_users", {redis_key: attempts})
+        redis_client.zadd(f"correct_users: {user_id}", {redis_key: attempts})
     except Exception as e:
         print(f"정답 사용자 저장 중 오류: {e}")
 
@@ -197,13 +197,17 @@ def start_game():
 def guess():
     global game_over, attempts, rankings
 
+    # JSON 데이터 받기
     data = request.get_json()
     user_input = data.get("user_input", "").strip()
     user_id = session.get("user_id", "anonymous")
+    attempts = int(data.get("attempts", 0)) 
 
+    # 유효한 단어 입력 체크
     if not user_input:
         return jsonify({"error": "단어를 입력하세요."}), 400
 
+    # 정답 단어 읽기
     with open("target_word.txt", "r", encoding="utf-8") as f:
         target_word = f.read().strip()
 
@@ -211,7 +215,7 @@ def guess():
     if user_input == target_word:
         game_over = True
         session["game_status"] = "finished"
-        save_correct_user(user_input, attempts + 1)
+        save_correct_user(user_id, user_input, attempts + 1)
         # 랭킹 업뎃하고 바로 조회
         rank = get_correct_user_rank(user_input)
         user_message = f"🎉 축하합니다. {attempts + 1}번째 만에 정답을 맞췄습니다! 랭킹은 {rank}위 입니다."
