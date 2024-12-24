@@ -19,7 +19,6 @@
 3. 포기하기를 입력하면 그 즉시 답을 알 수 있다.
 
 ## notice
-
 - 정답은 명사와 동사, 부사 만을 포함합니다.
 - 유사도는 FastText로 Pre-trained된 모델을 사용합니다.
 - 유사도는 단어의 철자가 비슷한 것이 아닌 의미에 대한 유사도입니다.
@@ -34,18 +33,6 @@
   </tr>
 </table>
 
-## 해야할 것
-- [x] 사용자들의 첫 단어 -> 두 번째 단어 빈도 수 통계 -> 워드클라우드로 나타내기
-- [x] 웹사이트로 아이디어 발전
-- [x] 도전 횟수 업데이트 기능
-- [ ] n번 만에 맞추면 선물?? 
-- [x] 유사도 점수 랭킹 저장
-- [x] 전체 사용자 랭킹 db 개발
-- [ ] 사용자 랭킹 시스템 top5 -> n번째만에 맞추셨습니다. 랭킹은 n위입니다.
-- [x] 1초에 한 번씩 워드클라우드 업데이트
-- [x] 워드클라우드 오전 12시 되면 초기화
-- [x] 영어 입력 alert to gameinfo()
-
 ## How to use
 
 ~~~
@@ -53,3 +40,42 @@ pip install schedule fasttext scikit-learn wordcloud matplotlib flask redis
 ~~~
 - [FastText](https://fasttext.cc)에 들어가서 한국어 모델을 다운로드 하셔서 bin 파일을 프로젝트 폴더에 넣어주시면 됩니다.
 - 사용을 못한다면 sentences.json에서 굉장히 많은 문장을 추가한 다음 train/train.py를 실행시켜 단어를 추출하면 됩니다.
+  
+~~~
+redis-server
+~~~
+- flask 서버 실행하기 전에 Redis 서버를 실행해줘야 합니다. (랭킹 DB 업로드)
+  
+~~~
+python project/app.py
+~~~
+<table>
+  <tr>
+    <td><img src="assets/imgs/start.png" width="250"></td>
+    <td><img src="assets/imgs/process.png" width="250"></td>
+    <td><img src="assets/imgs/db.png" width="300"></td>
+  </tr>
+</table>
+
+
+## features
+- 오늘의 워드 클라우드
+- 단어 유사도 계산
+- 유사도 랭킹 테이블
+- 사용자 랭킹 DB
+- 게임은 하루에 한 번씩
+- 오전 12시 초기화
+
+
+## 해야할 것
+- [x] 사용자들의 첫 단어 -> 두 번째 단어 빈도 수 통계 -> 워드클라우드로 나타내기
+- [x] 웹사이트로 아이디어 발전
+- [x] 도전 횟수 업데이트 기능
+- [x] 유사도 점수 랭킹 저장
+- [x] 전체 사용자 랭킹 db 개발
+- [x] 사용자 랭킹 시스템 top5 -> n번째만에 맞추셨습니다. 랭킹은 n위입니다.
+- [x] 1초에 한 번씩 워드클라우드 업데이트
+- [x] 워드클라우드 오전 12시 되면 초기화
+- [x] 영어 입력 alert to gameinfo()
+- [ ] t-SNE 사용-> 유사도를 더 시각적으로 확인
+- [ ] 힌트 기능: 
