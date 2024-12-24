@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return englishRegex.test(input);
     }
 
-    function updateRankingTable(lastword) {
+    function updateRankingTable(rankings, lastword) {
         rankingTable.innerHTML = "";
 
         const sortedRankings = [...rankings].sort((a, b) => b.similarity - a.similarity);
@@ -32,6 +32,18 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             rankingTable.appendChild(row);
         });
+    }
+
+    function updateRankingTable(lastword) {
+        fetch("/rankings")
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.rankings) {
+                    rankings = data.rankings;
+                    updateRankingTable(rankings, lastword);
+                }
+            })
+            .catch((error) => console.error("랭킹 업데이트 중 오류 발생:", error));
     }
 
     function fetchWordcloud() {
