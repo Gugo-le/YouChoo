@@ -174,7 +174,7 @@ def save_correct_user(user_id, user_word, attempts):
 def get_correct_user_rank(user_id, user_word):
     try:
         redis_key = f"{user_id}:{user_word}"
-        rank = redis_client.zrevrank("correct_users", redis_key)
+        rank = redis_client.zrank("correct_users", redis_key)
         if rank is not None:
             return rank + 1
         return None
