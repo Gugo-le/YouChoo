@@ -1,30 +1,45 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
     background-color: #121212;
     color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* 최소 높이 설정 */
 }
 
 .container {
+    width: 100%;
     max-width: 600px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 30px;
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 100%;
 }
 
 header {
     text-align: center;
-    margin-bottom: 20px;
-}
-
-header h1 {
-    font-size: 24px;
     margin-bottom: 10px;
 }
 
+h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+    color: #ff6f61;
+}
+
 header p {
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.6;
+    margin-bottom: 10px;
 }
 
 .input-section {
@@ -39,8 +54,8 @@ header p {
     padding: 10px;
     border: 1px solid #444;
     border-radius: 5px;
-    font-size: 14px;
-    background-color: #1e1e1e;
+    font-size: 16px;
+    background-color: #2e2e2e;
     color: #fff;
 }
 
@@ -50,16 +65,17 @@ header p {
 #start-button,
 #give-up-button {
     padding: 10px 20px;
-    font-size: 14px;
+    font-size: 16px;
     color: #fff;
-    background-color: #3a3a3a;
+    background-color: #ff6f61;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #555;
+    background-color: #ff8a80;
 }
 
 .ranking-section table {
@@ -80,6 +96,8 @@ button:hover {
     height: auto;
     display: block;
     margin: 0 auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .last-guessed-word {
@@ -90,6 +108,17 @@ button:hover {
 
 #top10-container {
     display: none;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: auto;
 }
 
 #top10-ranking-table {
@@ -103,4 +132,16 @@ button:hover {
     border: 1px solid #444;
     padding: 10px;
     text-align: center;
+}
+
+.gold {
+    color: gold;
+}
+
+.silver {
+    color: silver;
+}
+
+.bronze {
+    color: #cd7f32;
 }
