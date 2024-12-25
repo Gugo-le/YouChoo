@@ -123,11 +123,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         rankings.sort((a, b) => a.attempts - b.attempts).forEach((item, rankIndex) => {
             const row = document.createElement("tr");
+            let colorClass = "";
+            if (rankIndex === 0) {
+                colorClass = "gold";
+            } else if (rankIndex === 1) {
+                colorClass = "silver";
+            } else if (rankIndex === 2) {
+                colorClass = "bronze";
+            }
             row.innerHTML = `
-                <td>#${rankIndex + 1}</td>
-                <td>${item.uuid}</td>
-                <td>${item.attempts}</td>
-                <td>${item.time}</td>
+                <td class="${colorClass}">#${rankIndex + 1}</td>
+                <td class="${colorClass}">${item.uuid}</td>
+                <td class="${colorClass}">${item.attempts}</td>
+                <td class="${colorClass}">${item.time}</td>
             `;
             top10RankingTable.appendChild(row);
         });
