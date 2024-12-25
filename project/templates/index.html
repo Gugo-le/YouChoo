@@ -10,7 +10,7 @@
 
 <body>
     <div class="container">
-        <header>
+        <header id="main-header">
             <h1>You Choo?</h1>
             <p id="game-info">
                 게임이 아직 시작되지 않았습니다. 시작 버튼을 눌러주세요.
@@ -21,8 +21,7 @@
                 <input type="text" id="word-input" placeholder="추측할 단어를 입력하세요">
                 <button id="guess-button">추측하기</button>
             </div>
-            <div class="ranking-section">
-
+            <div class="ranking-section" id="ranking-section">
                 <table>
                     <thead>
                         <tr>
@@ -37,6 +36,31 @@
                     </tbody>
                 </table>
             </div>
+            <div class="container" id="top10-container" style="display: none;">
+                <header>
+                    <h1>TOP 10 랭킹</h1>
+                </header>
+                <main>
+                    <div class="ranking-section">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>UUID</th>
+                                    <th>시도 횟수</th>
+                                    <th>걸린 시간 (초)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top10-ranking-table">
+                                <!-- TOP 10 랭킹이 여기에 추가됩니다. -->
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
+                <footer>
+                    <button id="back-button">뒤로가기</button>
+                </footer>
+            </div>
             <div class="wordcloud-section">
                 <h2>오늘의 워드 클라우드</h2>
                 <img id="wordcloud" alt="워드 클라우드가 여기에 표시됩니다.">
@@ -44,8 +68,10 @@
         </main>
         <footer>
             <button id="give-up-button">포기하기</button>
+            <button id="top10-button">TOP 10</button>
         </footer>
     </div>
+
     <script src="/static/script.js"></script>
 </body>
 
