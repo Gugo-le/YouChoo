@@ -169,12 +169,13 @@ def check_status():
     return jsonify({"status": "new"})
 
 # 정답 맞춘 사용자 정보 저장
-def save_correct_user(user_id, user_word, attempts):
+def save_correct_user(user_id, user_word, attempts, time_taken):
     try:
         attempts = float(attempts)
         redis_key = f"{user_id}:{user_word}"
         redis_client.zadd("correct_users", {redis_key: attempts})
-        print(f"정답 사용자 {user_id} 저장 완료: {user_word}, 시도 횟수: {attempts}")
+        redis_client.hset(redis_key, "time_taken", time_taken)
+        print(f"정답 사용자 {user_id} 저장 완료: {user_word}, 시도 횟수: {attempts}, 걸린 시간: {time_taken}초")
     except Exception as e:
         print(f"정답 사용자 저장 중 오류: {e}")
 
@@ -202,6 +203,7 @@ def start_game():
         with open("target_word.txt", "w", encoding="utf-8") as f:
             f.write(target_word)
         session["game_status"] = "new"
+        session["start_time"] = datetime.datetime.now(datetime.timezone.utc)  # Set the start time with UTC
         return jsonify({"message": "게임이 시작되었습니다."}), 200
     return jsonify({"error": "목표 단어를 생성하지 못했습니다."}), 500
 
@@ -224,9 +226,12 @@ def guess():
     if user_input == target_word:
         game_over = True
         session["game_status"] = "finished"
-        save_correct_user(user_id, user_input, attempts + 1)
+        start_time = session.get("start_time")
+        end_time = datetime.datetime.now(datetime.timezone.utc)  # Get the current time with UTC
+        time_taken = (end_time - start_time).total_seconds()
+        save_correct_user(user_id, user_input, attempts + 1, time_taken)
         rank = get_correct_user_rank(user_id, user_input)
-        user_message = f"🎉 축하합니다. {attempts + 1}번째 만에 정답을 맞췄습니다! 랭킹은 {rank}위 입니다."
+        user_message = f"🎉 축하합니다. {attempts + 1}번째 만에 정답을 맞췄습니다! 랭킹은 {rank}위 입니다. 걸린 시간: {time_taken}초"
         return jsonify({
             "message": target_word,
             "attempts": attempts + 1,
