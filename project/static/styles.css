@@ -79,3 +79,9 @@ button:hover {
     display: block;
     margin: 0 auto;
 }
+
+.last-guessed-word {
+    background-color: #2a2a2a;
+    font-weight: bold;
+    color: red;
+}
