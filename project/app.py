@@ -317,6 +317,25 @@ def get_rankings():
     except Exception as e:
         return jsonify({"error": f"랭킹 조회 중 오류 발생: {str(e)}"}), 500
 
+# TOP 10 랭킹 조회
+@app.route('/top10', methods=['GET'])
+def top10():
+    try:
+        rankings = redis_client.zrange("correct_users", 0, 9, withscores=True)
+        formatted_rankings = []
+        for key, score in rankings:
+            time_taken = redis_client.hget(key, "time_taken")
+            formatted_rankings.append({
+                "uuid": key.split(":")[0],
+                "word": key.split(":")[1],
+                "attempts": score,
+                "time": time_taken
+            })
+        formatted_rankings.sort(key=lambda x: x["attempts"])
+        return jsonify({"rankings": formatted_rankings}), 200
+    except Exception as e:
+        return jsonify({"error": f"TOP 10 랭킹 조회 중 오류 발생: {str(e)}"}), 500
+
 if __name__ == '__main__':
     threading.Thread(target=update_wordcloud_periodically, daemon=True).start()
     threading.Thread(target=schedule_jobs, daemon=True).start()
