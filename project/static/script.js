@@ -2,10 +2,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const guessButton = document.getElementById("guess-button");
     const wordInput = document.getElementById("word-input");
     const rankingTable = document.getElementById("ranking-table");
+    const rankingSection = document.getElementById("ranking-section");
     const startButton = document.getElementById("start-button");
     const giveUpButton = document.getElementById("give-up-button");
     const wordcloud = document.getElementById("wordcloud");
     const gameInfo = document.getElementById("game-info");
+    const top10Button = document.getElementById("top10-button");
+    const backButton = document.getElementById("back-button");
+    const top10RankingTable = document.getElementById("top10-ranking-table");
+    const top10Container = document.getElementById("top10-container");
+    const mainContainer = document.querySelector(".container");
+    const mainHeader = document.getElementById("main-header");
 
     let attempts = 0;
     let rankings = [];
@@ -99,6 +106,51 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch((error) => console.error("게임 시작 중 오류 발생:", error));
     }
+
+    function fetchTop10Rankings() {
+        fetch("/top10")
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.rankings) {
+                    updateTop10RankingTable(data.rankings);
+                }
+            })
+            .catch((error) => console.error("TOP 10 랭킹 조회 중 오류 발생:", error));
+    }
+
+    function updateTop10RankingTable(rankings) {
+        top10RankingTable.innerHTML = "";
+
+        rankings.sort((a, b) => a.attempts - b.attempts).forEach((item, rankIndex) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>#${rankIndex + 1}</td>
+                <td>${item.uuid}</td>
+                <td>${item.attempts}</td>
+                <td>${item.time}</td>
+            `;
+            top10RankingTable.appendChild(row);
+        });
+    }
+
+    top10Button.addEventListener("click", () => {
+        guessButton.style.display = "none";
+        wordInput.style.display = "none";
+        mainHeader.style.display = "none";
+        gameInfo.style.display = "none";
+        rankingSection.style.display = "none";
+        top10Container.style.display = "block";
+        fetchTop10Rankings();
+    });
+
+    backButton.addEventListener("click", () => {
+        top10Container.style.display = "none";
+        mainHeader.style.display = "block";
+        gameInfo.style.display = "block";
+        rankingSection.style.display = "block";
+        guessButton.style.display = "block";
+        wordInput.style.display = "block";
+    });
 
     guessButton.addEventListener("click", () => {
         const userInput = wordInput.value.trim();
