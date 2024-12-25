@@ -20,17 +20,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const sortedRankings = [...rankings].sort((a, b) => b.similarity - a.similarity);
 
-        sortedRankings.forEach((item, rankIndex) => {
-            const inputOrder = rankings.findIndex((originalItem) => originalItem.word === item.word) + 1;
-
+        // 방금 입력한 단어를 제일 상단에 추가 ==> 시도횟수가 많아지면 사용자가 불편함.
+        const lastWordRanking = sortedRankings.find(item => item.word === lastword);
+        if (lastWordRanking) {
             const row = document.createElement("tr");
+            row.classList.add("last-guessed-word");
             row.innerHTML = `
-                <td>#${inputOrder}</td>
-                <td style="color: ${item.word === lastword ? 'red' : 'white'};">${item.word}</td>
-                <td>${(item.similarity * 100).toFixed(2)}%</td>
-                <td>${rankIndex + 1}</td>
+                <td>#${rankings.findIndex((originalItem) => originalItem.word === lastword) + 1}</td>
+                <td style="color: red;">${lastWordRanking.word}</td>
+                <td>${(lastWordRanking.similarity * 100).toFixed(2)}%</td>
+                <td>${sortedRankings.indexOf(lastWordRanking) + 1}</td>
             `;
             rankingTable.appendChild(row);
+        }
+
+        sortedRankings.forEach((item, rankIndex) => {
+            if (item.word !== lastword) {
+                const inputOrder = rankings.findIndex((originalItem) => originalItem.word === item.word) + 1;
+
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>#${inputOrder}</td>
+                    <td style="color: white;">${item.word}</td>
+                    <td>${(item.similarity * 100).toFixed(2)}%</td>
+                    <td>${rankIndex + 1}</td>
+                `;
+                rankingTable.appendChild(row);
+            }
         });
     }
 
