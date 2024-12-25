@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>You Choo? - 인공지능이 생각하고 있는 단어는 무엇일까요?</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -36,30 +37,22 @@
                     </tbody>
                 </table>
             </div>
-            <div class="container" id="top10-container" style="display: none;">
-                <header>
-                    <h1>TOP 10 랭킹</h1>
-                </header>
-                <main>
-                    <div class="ranking-section">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>UUID</th>
-                                    <th>시도 횟수</th>
-                                    <th>걸린 시간 (초)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="top10-ranking-table">
-                                <!-- TOP 10 랭킹이 여기에 추가됩니다. -->
-                            </tbody>
-                        </table>
-                    </div>
-                </main>
-                <footer>
-                    <button id="back-button">뒤로가기</button>
-                </footer>
+            <div class="ranking-section" id="top10-ranking-section" style="display: none;">
+                <h1>TOP 10 랭킹</h1>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>UUID</th>
+                            <th>🔄</th>
+                            <th>걸린 시간</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top10-ranking-table">
+                        <!-- TOP 10 랭킹이 여기에 추가됩니다. -->
+                    </tbody>
+                </table>
+                <button id="back-button">뒤로가기</button>
             </div>
             <div class="wordcloud-section">
                 <h2>오늘의 워드 클라우드</h2>
