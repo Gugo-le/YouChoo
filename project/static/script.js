@@ -3,16 +3,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const wordInput = document.getElementById("word-input");
     const rankingTable = document.getElementById("ranking-table");
     const rankingSection = document.getElementById("ranking-section");
-    const startButton = document.getElementById("start-button");
     const giveUpButton = document.getElementById("give-up-button");
-    const wordcloud = document.getElementById("wordcloud");
-    const gameInfo = document.getElementById("game-info");
     const top10Button = document.getElementById("top10-button");
     const backButton = document.getElementById("back-button");
     const top10RankingTable = document.getElementById("top10-ranking-table");
-    const top10Container = document.getElementById("top10-container");
-    const mainContainer = document.querySelector(".container");
+    const top10RankingSection = document.getElementById("top10-ranking-section");
     const mainHeader = document.getElementById("main-header");
+    const gameInfo = document.getElementById("game-info");
+    const wordcloudSection = document.querySelector(".wordcloud-section");
 
     let attempts = 0;
     let rankings = [];
@@ -27,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const sortedRankings = [...rankings].sort((a, b) => b.similarity - a.similarity);
 
-        // 방금 입력한 단어를 제일 상단에 추가 ==> 시도횟수가 많아지면 사용자가 불편함.
         const lastWordRanking = sortedRankings.find(item => item.word === lastword);
         if (lastWordRanking) {
             const row = document.createElement("tr");
@@ -124,40 +121,42 @@ document.addEventListener("DOMContentLoaded", () => {
         rankings.sort((a, b) => a.attempts - b.attempts).forEach((item, rankIndex) => {
             const row = document.createElement("tr");
             let colorClass = "";
+            let fontWeight = "";
             if (rankIndex === 0) {
                 colorClass = "gold";
+                fontWeight = "bold";
             } else if (rankIndex === 1) {
                 colorClass = "silver";
+                fontWeight = "bold";
             } else if (rankIndex === 2) {
                 colorClass = "bronze";
+                fontWeight = "bold";
             }
             row.innerHTML = `
-                <td class="${colorClass}">#${rankIndex + 1}</td>
-                <td class="${colorClass}">${item.uuid}</td>
-                <td class="${colorClass}">${item.attempts}</td>
-                <td class="${colorClass}">${item.time}</td>
+                <td class="${colorClass}" style="font-weight: ${fontWeight};">#${rankIndex + 1}</td>
+                <td class="${colorClass}" style="font-weight: ${fontWeight};">${item.uuid}</td>
+                <td class="${colorClass}" style="font-weight: ${fontWeight};">${item.attempts}</td>
+                <td class="${colorClass}" style="font-weight: ${fontWeight};">${item.time}</td>
             `;
             top10RankingTable.appendChild(row);
         });
     }
 
     top10Button.addEventListener("click", () => {
-        guessButton.style.display = "none";
-        wordInput.style.display = "none";
         mainHeader.style.display = "none";
         gameInfo.style.display = "none";
         rankingSection.style.display = "none";
-        top10Container.style.display = "block";
+        wordcloudSection.style.display = "none";
+        guessButton.style.display = "none";
+        giveUpButton.style.display = "none";
+        top10Button.style.display = "none";
+        wordInput.style.display = "none";
+        top10RankingSection.style.display = "block";
         fetchTop10Rankings();
     });
 
     backButton.addEventListener("click", () => {
-        top10Container.style.display = "none";
-        mainHeader.style.display = "block";
-        gameInfo.style.display = "block";
-        rankingSection.style.display = "block";
-        guessButton.style.display = "block";
-        wordInput.style.display = "block";
+        location.reload(); // 페이지 새로고침
     });
 
     guessButton.addEventListener("click", () => {
