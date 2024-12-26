@@ -2,9 +2,4 @@
 .venv/lib/
 cc.ko.300.bin
 dump.rdb
-
-all_words.txt
-first_words.txt
-target_word.txt
-word.txt
 wordcloud_base64.txt
