@@ -67,7 +67,7 @@ def generate_wordcloud_base64():
 
         word_counts = Counter([word.strip() for word in words])
         wordcloud = WordCloud(
-            font_path="assets/fonts/Do_Hyeon/DoHyeon-Regular.ttf",
+            font_path="project/static/fonts/Do_Hyeon/DoHyeon-Regular.ttf",
             width=800,
             height=400,
             background_color="white"
