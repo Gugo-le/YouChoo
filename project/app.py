@@ -331,8 +331,9 @@ def top10():
         formatted_rankings = []
         for key, score in rankings:
             time_taken = redis_client.hget(key, "time_taken")
+            uuid_short = key.split(":")[0][:8] + "..." + key.split(":")[0][-8:]  # UUID를 중간에 자름
             formatted_rankings.append({
-                "uuid": key.split(":")[0],
+                "uuid": uuid_short,
                 "word": key.split(":")[1],
                 "attempts": score,
                 "time": time_taken
