@@ -151,3 +151,50 @@ footer {
     justify-content: center;
     gap: 10px;
 }
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: rgba(133, 133, 133, 0.5);
+}
+
+hr.custom-hr {
+    border: none;
+    height: 1px;
+    background-color: rgba(133, 133, 133, 0.5);
+    margin: 20px 0;
+}
+
+.qa {
+    margin-bottom: 20px;
+    background-color: #2a2a2a;
+    /* 연한 배경색 */
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.qa h2 {
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: #ff8a65;
+}
+
+.qa p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-left: 20px;
+    color: #fff;
+    background-color: transparent;
+    /* 배경색 제거 */
+    padding: 0;
+    border-radius: 0;
+}
+
+.qa a {
+    color: #ffcc80;
+    text-decoration: underline;
+}
+
+.qa a:hover {
+    color: #ffa726;
+}
