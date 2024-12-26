@@ -3,8 +3,4 @@
 cc.ko.300.bin
 dump.rdb
 
-project/first_words.txt
-project/wordcloud_base64.txt
-project/all_words.txt
-project/target_words.txt
-project/word.txt
+txt/
