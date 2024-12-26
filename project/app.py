@@ -142,6 +142,9 @@ def reset_all_words():
         with open("project/wordcloud_base64.txt", "w", encoding="utf-8") as f:
             f.write("")
         print("wordcloud_base64.txt 파일이 초기화되었습니다.")
+        
+        with open("project/all_words.txt", "w", encoding="utf-8") as f:
+            f.write("")
         print("모든 단어가 초기화되었습니다.")
     except Exception as e:
         print(f"wordcloud_base64.txt 초기화 중 오류: {e}")  
