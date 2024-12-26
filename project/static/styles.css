@@ -245,3 +245,8 @@ hr.custom-hr {
     color: #aaa;
     margin-bottom: 0;
 }
+
+.copyright a {
+    color: #ffcc80;
+    text-decoration: underline;
+}
