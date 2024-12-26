@@ -85,7 +85,7 @@ def generate_wordcloud_base64():
 def daily_reset():
     global rankings, attempts, game_over
     
-    target_word = get_daily_target_word("project/static/txt/word.txt")
+    target_word = get_daily_target_word("project/word.txt")
     if target_word:
         with open("project/target_word.txt", "w", encoding="utf-8") as f:
             f.write(target_word)
@@ -197,7 +197,7 @@ def start_game():
     game_over = False
     attempts = 0
 
-    target_word = get_daily_target_word("project/static/txt/word.txt")
+    target_word = get_daily_target_word("project/word.txt")
     if target_word:
         with open("project/target_word.txt", "w", encoding="utf-8") as f:
             f.write(target_word)
