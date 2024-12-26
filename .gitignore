@@ -6,3 +6,4 @@ first_words.txt
 all_words.txt
 wordcloud_base64.txt
 dump.rdb
+tsne.py
