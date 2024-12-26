@@ -101,6 +101,12 @@ def daily_reset():
     redis_client.delete("correct_users")
     print("랭킹이 초기화되었습니다.")
     
+    # 모든 사용자 세션 초기화
+    with app.app_context():
+        for key in list(session.keys()):
+            session.pop(key)
+        print("모든 사용자 세션이 초기화되었습니다.")
+    
     rankings = []
     attempts = 0
     game_over = False            
