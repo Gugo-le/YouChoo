@@ -12,7 +12,7 @@ from wordcloud import WordCloud
 from collections import Counter
 from sklearn.metrics.pairwise import cosine_similarity
 from flask import Flask, request, jsonify, render_template, session
-
+from flask.cli import AppGroup
 
 app = Flask(__name__)
 app.secret_key = 'strawberrycake'
@@ -341,6 +341,36 @@ def top10():
         return jsonify({"rankings": formatted_rankings}), 200
     except Exception as e:
         return jsonify({"error": f"TOP 10 랭킹 조회 중 오류 발생: {str(e)}"}), 500
+
+# Flask 커맨드 그룹 생성
+cli = AppGroup('custom')
+
+# target_word 출력 명령어 추가
+@cli.command('show-target-word')
+def show_target_word():
+    try:
+        with open("target_word.txt", "r", encoding="utf-8") as f:
+            target_word = f.read().strip()
+        print(f"오늘의 정답 단어는: {target_word}")
+    except Exception as e:
+        print(f"정답 단어를 읽는 중 오류 발생: {e}")
+
+# Redis 데이터베이스 출력 명령어 추가
+@cli.command('show-redis-data')
+def show_redis_data():
+    try:
+        keys = redis_client.keys('*')
+        if not keys:
+            print("Redis 데이터베이스가 비어 있습니다.")
+            return
+
+        for key in keys:
+            value = redis_client.get(key)
+            print(f"{key}: {value}")
+    except Exception as e:
+        print(f"Redis 데이터베이스를 읽는 중 오류 발생: {e}")
+
+app.cli.add_command(cli)
 
 if __name__ == '__main__':
     threading.Thread(target=update_wordcloud_periodically, daemon=True).start()
