@@ -34,7 +34,7 @@ def load_fasttext_model(file_path):
         print(f"FastText 모델 로드 중 오류: {e}")
         return None
 
-fasttext_model = load_fasttext_model("project/cc.ko.300.bin")
+fasttext_model = load_fasttext_model("project/model/cc.ko.300.bin")
 
 # 매일 랜덤 목표 단어 생성
 def get_daily_target_word(file_path):
@@ -62,7 +62,7 @@ def calculate_similarity(user_word, target_word, model):
 # 워드클라우드 생성
 def generate_wordcloud_base64():
     try:
-        with open("all_words.txt", "r", encoding="utf-8") as f:
+        with open("project/all_words.txt", "r", encoding="utf-8") as f:
             words = f.readlines()
 
         word_counts = Counter([word.strip() for word in words])
@@ -87,13 +87,13 @@ def daily_reset():
     
     target_word = get_daily_target_word("project/static/txt/word.txt")
     if target_word:
-        with open("target_word.txt", "w", encoding="utf-8") as f:
+        with open("project/target_word.txt", "w", encoding="utf-8") as f:
             f.write(target_word)
         print("목표 단어가 초기화되었습니다.")    
         
     img_base64 = generate_wordcloud_base64()
     if img_base64:
-        with open("wordcloud_base64.txt", "w", encoding="utf-8") as f:
+        with open("project/wordcloud_base64.txt", "w", encoding="utf-8") as f:
             f.write(img_base64)
         print("어제의 워드클라우드가 초기화되었습니다.")
         
@@ -124,7 +124,7 @@ def update_wordcloud_periodically():
         try:
             img_base64 = generate_wordcloud_base64()
             if img_base64:
-                with open("wordcloud_base64.txt", "w", encoding="utf-8") as f:
+                with open("project/wordcloud_base64.txt", "w", encoding="utf-8") as f:
                     f.write(img_base64)
         except Exception as e:
             print(f"워드클라우드 업데이트 오류: {e}")
@@ -133,7 +133,7 @@ def update_wordcloud_periodically():
 # 워드클라우드 오전 12시 초기화
 def reset_all_words():
     try:
-        with open("wordcloud_base64.txt", "w", encoding="utf-8") as f:
+        with open("project/wordcloud_base64.txt", "w", encoding="utf-8") as f:
             f.write("")
         print("wordcloud_base64.txt 파일이 초기화되었습니다.")
         print("모든 단어가 초기화되었습니다.")
@@ -199,7 +199,7 @@ def start_game():
 
     target_word = get_daily_target_word("project/static/txt/word.txt")
     if target_word:
-        with open("target_word.txt", "w", encoding="utf-8") as f:
+        with open("project/target_word.txt", "w", encoding="utf-8") as f:
             f.write(target_word)
         session["game_status"] = "new"
         session["start_time"] = datetime.datetime.now(datetime.timezone.utc)
@@ -218,7 +218,7 @@ def guess():
     if not user_input:
         return jsonify({"error": "단어를 입력하세요."}), 400
 
-    with open("target_word.txt", "r", encoding="utf-8") as f:
+    with open("project/target_word.txt", "r", encoding="utf-8") as f:
         target_word = f.read().strip()
 
     # 정답 확인
@@ -251,7 +251,7 @@ def guess():
     attempts += 1
     rank = update_and_get_rankings(user_input, similarity_score, rankings)
 
-    with open("all_words.txt", "a", encoding="utf-8") as f:
+    with open("project/all_words.txt", "a", encoding="utf-8") as f:
         f.write(user_input + "\n")
 
     return jsonify({
@@ -266,7 +266,7 @@ def guess():
 def giveup():
     global game_over
     game_over = True
-    with open("target_word.txt", "r", encoding="utf-8") as f:
+    with open("project/target_word.txt", "r", encoding="utf-8") as f:
         target_word = f.read().strip()
 
     session["game_status"] = "finished"
@@ -276,7 +276,7 @@ def giveup():
 @app.route('/wordcloud', methods=['GET'])
 def wordcloud():
     try:
-        with open("wordcloud_base64.txt", "r", encoding="utf-8") as f:
+        with open("project/wordcloud_base64.txt", "r", encoding="utf-8") as f:
             img_base64 = f.read().strip()
         return jsonify({"wordcloud": img_base64}), 200
     except Exception as e:
@@ -287,7 +287,7 @@ def wordcloud():
 @app.route('/wordcloud', methods=['GET'])
 def get_wordcloud():
     try:
-        with open("wordcloud_base64.txt", "r", encoding="utf-8") as f:
+        with open("project/wordcloud_base64.txt", "r", encoding="utf-8") as f:
             wordcloud_base64 = f.read()
         return jsonify({"wordcloud_base64": wordcloud_base64}), 200
     except Exception as e:
@@ -349,7 +349,7 @@ cli = AppGroup('custom')
 @cli.command('show-target-word')
 def show_target_word():
     try:
-        with open("target_word.txt", "r", encoding="utf-8") as f:
+        with open("project/target_word.txt", "r", encoding="utf-8") as f:
             target_word = f.read().strip()
         print(f"오늘의 정답 단어는: {target_word}")
     except Exception as e:
