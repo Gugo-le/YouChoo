@@ -9,7 +9,6 @@ import datetime
 import uuid
 import redis
 from wordcloud import WordCloud
-from operator import itemgetter
 from collections import Counter
 from sklearn.metrics.pairwise import cosine_similarity
 from flask import Flask, request, jsonify, render_template, session
