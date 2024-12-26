@@ -11,6 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const mainHeader = document.getElementById("main-header");
     const gameInfo = document.getElementById("game-info");
     const wordcloudSection = document.querySelector(".wordcloud-section");
+    const qaSections = document.querySelectorAll(".qa");
+    const footerBasic = document.querySelector(".footer-basic");
+    const customHr = document.querySelector(".custom-hr");
 
     let attempts = 0;
     let rankings = [];
@@ -180,6 +183,9 @@ document.addEventListener("DOMContentLoaded", () => {
         top10Button.style.display = "none";
         wordInput.style.display = "none";
         top10RankingSection.style.display = "block";
+        qaSections.forEach(section => section.style.display = "none");
+        footerBasic.style.display = "none";
+        customHr.style.display = "none";
         fetchTop10Rankings();
     });
 
@@ -193,6 +199,9 @@ document.addEventListener("DOMContentLoaded", () => {
         giveUpButton.style.display = "block";
         top10Button.style.display = "block";
         wordInput.style.display = "block";
+        qaSections.forEach(section => section.style.display = "block");
+        footerBasic.style.display = "block";
+        customHr.style.display = "block";
         loadGameState();
     });
 
