@@ -129,7 +129,7 @@ def update_wordcloud_periodically():
                     f.write(img_base64)
         except Exception as e:
             print(f"워드클라우드 업데이트 오류: {e}")
-        time.sleep(10)
+        time.sleep(5)
         
 # 워드클라우드 오전 12시 초기화
 def reset_all_words():
