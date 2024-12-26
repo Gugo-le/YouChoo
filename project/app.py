@@ -34,7 +34,7 @@ def load_fasttext_model(file_path):
         print(f"FastText 모델 로드 중 오류: {e}")
         return None
 
-fasttext_model = load_fasttext_model("cc.ko.300.bin")
+fasttext_model = load_fasttext_model("project/cc.ko.300.bin")
 
 # 매일 랜덤 목표 단어 생성
 def get_daily_target_word(file_path):
