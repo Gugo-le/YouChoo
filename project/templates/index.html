@@ -7,6 +7,7 @@
     <title>You Choo? - 인공지능이 생각하고 있는 단어는 무엇일까요?</title>
     <link rel="stylesheet" href="/static/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body>
@@ -59,15 +60,15 @@
                 <img id="wordcloud" alt="워드 클라우드가 여기에 표시됩니다.">
             </div>
         </main>
-        <footer>
+        <div class="bt">
             <button id="give-up-button">포기하기</button>
             <button id="top10-button">TOP 10</button>
-        </footer>
+        </div>
         <hr class="custom-hr">
         <div class="qa">
             <h2>Q. You Choo?는 뭔가요?</h2>
             <p>
-                A. You Choo?는 인공지능이 생각하고 있는 단어를 맞추는 게임입니다. 인공지능이 생각하고 있는 단어를 추측하여 랭킹에 이름을 올려보세요!
+                A. '유추'는 인공지능이 생각하고 있는 단어를 맞추는 게임입니다. 인공지능이 생각하고 있는 단어를 추측하여 랭킹에 이름을 올려보세요!
             </p>
         </div>
 
@@ -98,9 +99,21 @@
                 A. '유추'는 오전 00시에 정답 단어, 랭킹, 워드 클라우드가 초기화됩니다. 따라서 하루에 한 번만 플레이 가능합니다.
             </p>
         </div>
-    </div>
+        <hr class="custom-hr">
+        <div class="footer-basic">
+            <footer>
+                <div class="social">
+                    <a href="https://instagram.com/_g.u.g.o__"><i class="fab fa-instagram"></i></a>
+                    <a href="https://github.com/Gugo-le"><i class="fab fa-github"></i></a>
 
+                </div>
+                <p class="copyright">© 2024. Gugo-le. All rights reserved.</p>
+            </footer>
+        </div>
+    </div>
     <script src="/static/script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
