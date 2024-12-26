@@ -145,3 +145,9 @@ button:hover {
 .bronze {
     color: #cd7f32;
 }
+
+footer {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
