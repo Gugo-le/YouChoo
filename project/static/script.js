@@ -142,7 +142,35 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function saveGameState() {
+        const gameState = {
+            attempts,
+            rankings,
+            gameInfo: gameInfo.textContent,
+            wordInput: wordInput.value,
+            wordInputDisabled: wordInput.disabled,
+            guessButtonDisabled: guessButton.disabled,
+            giveUpButtonDisabled: giveUpButton.disabled,
+        };
+        localStorage.setItem("gameState", JSON.stringify(gameState));
+    }
+
+    function loadGameState() {
+        const gameState = JSON.parse(localStorage.getItem("gameState"));
+        if (gameState) {
+            attempts = gameState.attempts;
+            rankings = gameState.rankings;
+            gameInfo.textContent = gameState.gameInfo;
+            wordInput.value = gameState.wordInput;
+            wordInput.disabled = gameState.wordInputDisabled;
+            guessButton.disabled = gameState.guessButtonDisabled;
+            giveUpButton.disabled = gameState.giveUpButtonDisabled;
+            updateRankingTable(rankings);
+        }
+    }
+
     top10Button.addEventListener("click", () => {
+        saveGameState();
         mainHeader.style.display = "none";
         gameInfo.style.display = "none";
         rankingSection.style.display = "none";
@@ -156,7 +184,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     backButton.addEventListener("click", () => {
-        location.reload(); // 페이지 새로고침
+        top10RankingSection.style.display = "none";
+        mainHeader.style.display = "block";
+        gameInfo.style.display = "block";
+        rankingSection.style.display = "block";
+        wordcloudSection.style.display = "block";
+        guessButton.style.display = "block";
+        giveUpButton.style.display = "block";
+        top10Button.style.display = "block";
+        wordInput.style.display = "block";
+        loadGameState();
     });
 
     guessButton.addEventListener("click", () => {
@@ -207,6 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 updateRankingTable(rankings, userInput);
                 wordInput.value = "";
+                saveGameState();
             })
             .catch((error) => console.error("추측 처리 중 오류 발생:", error));
     });
@@ -221,10 +259,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     wordInput.disabled = true;
                     guessButton.disabled = true;
                     giveUpButton.disabled = true;
+                    saveGameState();
                 }
             })
             .catch((error) => console.error("포기 처리 중 오류 발생:", error));
     });
 
+    loadGameState();
     startGame();
 });
