@@ -3,6 +3,7 @@ import schedule
 import random
 import fasttext
 import io
+import os
 import base64
 import threading
 import datetime
@@ -16,6 +17,9 @@ from flask.cli import AppGroup
 
 app = Flask(__name__)
 app.secret_key = 'strawberrycake'
+
+# 현재 작업 디렉토리 설정
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 
