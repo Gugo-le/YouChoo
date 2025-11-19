@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     const guessButton = document.getElementById("guess-button");
+    const nicknameInput = document.getElementById("nickname-input");
+    const setNicknameButton = document.getElementById("set-nickname-button");
+    const nicknameModal = document.getElementById("nickname-modal");
     const wordInput = document.getElementById("word-input");
     const rankingTable = document.getElementById("ranking-table");
     const rankingSection = document.getElementById("ranking-section");
@@ -81,6 +84,11 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(fetchWordcloud, 10000);
 
     function startGame() {
+        if (!localStorage.getItem("nickname")) {
+            gameInfo.textContent = "닉네임을 설정한 후 게임을 시작해주세요.";
+            return;
+        }
+
         if (localStorage.getItem("gameStatus") === "finished") {
             gameInfo.textContent = "‼️게임은 하루에 한 번만 가능합니다.‼️";
             fetchWordcloud();
@@ -106,6 +114,45 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch((error) => console.error("게임 시작 중 오류 발생:", error));
     }
+
+    // 닉네임 설정 처리
+    setNicknameButton.addEventListener("click", () => {
+        const nickname = nicknameInput.value.trim();
+        if (!nickname) {
+            gameInfo.textContent = "닉네임을 입력해주세요.";
+            return;
+        }
+
+        fetch('/set-nickname', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nickname })
+            })
+            .then(async(res) => {
+                const data = await res.json();
+                if (!res.ok) {
+                    gameInfo.textContent = data.error || '닉네임 설정 실패';
+                    return;
+                }
+                // 성공
+                localStorage.setItem('nickname', data.nickname);
+                gameInfo.textContent = `닉네임이 설정되었습니다: ${data.nickname}`;
+                // 모달 숨김
+                if (nicknameModal) nicknameModal.style.display = 'none';
+                // 단어 입력창과 추측 버튼을 복구/활성화
+                wordInput.style.display = '';
+                guessButton.style.display = '';
+                wordInput.disabled = false;
+                guessButton.disabled = false;
+                giveUpButton.disabled = false;
+                // 게임을 시작하도록 호출
+                startGame();
+            })
+            .catch((err) => {
+                console.error('닉네임 설정 중 오류:', err);
+                gameInfo.textContent = '닉네임 설정 중 오류가 발생했습니다.';
+            });
+    });
 
     function fetchTop10Rankings() {
         fetch("/top10")
@@ -135,9 +182,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 colorClass = "bronze";
                 fontWeight = "bold";
             }
+            const displayName = item.nickname || item.uuid || '(unknown)';
             row.innerHTML = `
                 <td class="${colorClass}" style="font-weight: ${fontWeight};">#${rankIndex + 1}</td>
-                <td class="${colorClass}" style="font-weight: ${fontWeight};">${item.uuid}</td>
+                <td class="${colorClass}" style="font-weight: ${fontWeight};">${displayName}</td>
                 <td class="${colorClass}" style="font-weight: ${fontWeight};">${item.attempts}</td>
                 <td class="${colorClass}" style="font-weight: ${fontWeight};">${item.time}</td>
             `;
@@ -275,5 +323,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     loadGameState();
+    // 닉네임이 이미 로컬에 있으면 모달 숨기기, 없으면 모달 표시
+    if (localStorage.getItem('nickname')) {
+        const existing = localStorage.getItem('nickname');
+        if (nicknameModal) nicknameModal.style.display = 'none';
+        gameInfo.textContent = `닉네임이 설정되었습니다: ${existing}`;
+    } else {
+        if (nicknameModal) {
+            nicknameModal.style.display = 'flex';
+            // 비활성화: 모달에서 닉네임 입력 전까지 게임 입력 금지
+            wordInput.disabled = true;
+            guessButton.disabled = true;
+            giveUpButton.disabled = true;
+            // focus
+            nicknameInput && nicknameInput.focus();
+        }
+    }
+
     startGame();
 });
