@@ -25,7 +25,9 @@ app.secret_key = 'strawberrycake'
 # 현재 작업 디렉토리 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
+redis_host = os.environ.get('REDIS_HOST', 'localhost')
+redis_port = int(os.environ.get('REDIS_PORT', 6379))
+redis_client = redis.StrictRedis(host=redis_host, port=redis_port, db=0, decode_responses=True)
 
 # 사용자 고유 ID 생성
 @app.before_request
