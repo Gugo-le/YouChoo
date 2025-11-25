@@ -128,3 +128,18 @@ docker run --rm -p 8000:8000 youchoo-local:latest
 - For extra security, consider using GitHub Actions OIDC or a short-lived token instead of long-lived SSH keys.
 
 If you want, I can add a separate `release.yml` that only builds images when you push a Git tag, or I can add DockerHub support instead of GHCR.
+
+### Uploading the model to S3 and creating a presigned URL
+
+You can upload your FastText `.bin` model to S3 and create a short-lived presigned URL to use as `MODEL_URL` in GitHub secrets. Example helper script is included at `scripts/upload_model_to_s3.py`.
+
+Prerequisites:
+- `aws` credentials configured locally (via `~/.aws/credentials` or environment variables `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`).
+- `boto3` installed: `pip install boto3`.
+
+Example usage:
+```bash
+python scripts/upload_model_to_s3.py --file project/model/cc.ko.300.bin --bucket my-bucket --key models/cc.ko.300.bin --expiry 3600
+```
+
+This prints a presigned `MODEL_URL`. Copy that value and add it to GitHub repository secrets as `MODEL_URL` (set a short expiry for security).
