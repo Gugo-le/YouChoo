@@ -90,11 +90,12 @@ Follow these steps to enable automatic build & deploy from GitHub Actions.
   - `DEPLOY_USER` — SSH user on the remote host (e.g., `ubuntu`).
   - `DEPLOY_SSH_KEY` — private SSH key (PEM) for `DEPLOY_USER` (add as secret, do NOT add passphrase).
   - (optional) `REMOTE_COMPOSE_PATH` — path to `docker-compose.yml` on the remote host (e.g. `/home/ubuntu/youchoo/docker-compose.yml`).
+  - (optional) `MODEL_URL` — public or signed URL where the FastText `.bin` is stored (S3, object storage). If set, the container entrypoint will download the model at startup.
 
 - How it works:
   1. Push to `main`/`master` triggers `.github/workflows/ci.yml`.
  2. Action builds the Docker image from `project/Dockerfile` and pushes to GitHub Container Registry `ghcr.io/<owner>/youchoo`.
- 3. If `DEPLOY_*` secrets are set, the workflow SSHes to your `DEPLOY_HOST` and pulls the new image. If `REMOTE_COMPOSE_PATH` exists on the host the workflow will run `docker-compose pull` and `docker-compose up -d`; otherwise it will run the container with `docker run -d`.
+  3. If `DEPLOY_*` secrets are set, the workflow SSHes to your `DEPLOY_HOST` and pulls the new image. If `REMOTE_COMPOSE_PATH` exists on the host the workflow will run `docker-compose pull` and `docker-compose up -d`; otherwise it will run the container with `docker run -d`. If you set `MODEL_URL` as a repo secret, the deploy step will pass it to the remote process (as `MODEL_URL`) so the container entrypoint can download the large FastText `.bin` at startup.
 
 - Quick local steps to finalize:
   - Make the deploy helper executable locally:

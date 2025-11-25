@@ -32,17 +32,34 @@ fi
 
 echo "Triggering deployment of image: $IMAGE to ${DEPLOY_USER}@${DEPLOY_HOST}"
 
-"${SSH_CMD[@]}" bash -s <<EOF
+"${SSH_CMD[@]}" bash -s <<'EOF'
 set -euo pipefail
 echo "Pulling image: $IMAGE"
 docker pull "$IMAGE" || echo "docker pull failed, continuing"
-if [ -f "$REMOTE_COMPOSE_PATH" ]; then
+
+# If MODEL_URL was passed through the environment, export it so docker-compose can use it
+if [ -n "${MODEL_URL:-}" ]; then
+  echo "Using MODEL_URL: ${MODEL_URL}"
+  export MODEL_URL="${MODEL_URL}"
+fi
+
+if [ -n "$REMOTE_COMPOSE_PATH" ] && [ -f "$REMOTE_COMPOSE_PATH" ]; then
   echo "Found compose at $REMOTE_COMPOSE_PATH — pulling and restarting services"
-  docker-compose -f "$REMOTE_COMPOSE_PATH" pull || true
-  docker-compose -f "$REMOTE_COMPOSE_PATH" up -d || true
+  # Pass MODEL_URL via environment when calling docker-compose
+  if [ -n "${MODEL_URL:-}" ]; then
+    MODEL_URL="$MODEL_URL" docker-compose -f "$REMOTE_COMPOSE_PATH" pull || true
+    MODEL_URL="$MODEL_URL" docker-compose -f "$REMOTE_COMPOSE_PATH" up -d || true
+  else
+    docker-compose -f "$REMOTE_COMPOSE_PATH" pull || true
+    docker-compose -f "$REMOTE_COMPOSE_PATH" up -d || true
+  fi
 else
   echo "Compose file not found at $REMOTE_COMPOSE_PATH — running container directly"
-  docker run -d --name youchoo --restart unless-stopped -p 8000:8000 "$IMAGE" || true
+  if [ -n "${MODEL_URL:-}" ]; then
+    docker run -d --name youchoo --restart unless-stopped -p 8000:8000 -e MODEL_URL="$MODEL_URL" "$IMAGE" || true
+  else
+    docker run -d --name youchoo --restart unless-stopped -p 8000:8000 "$IMAGE" || true
+  fi
 fi
 EOF
 
