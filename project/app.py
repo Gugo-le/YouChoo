@@ -230,6 +230,36 @@ def check_status():
         return jsonify({"status": "finished"})
     return jsonify({"status": "new"})
 
+
+# 닉네임 설정 엔드포인트
+@app.route('/set-nickname', methods=['POST'])
+def set_nickname():
+    try:
+        data = request.get_json()
+        nickname = (data.get('nickname') or '').strip()
+        if not nickname:
+            return jsonify({'error': '닉네임을 입력해주세요.'}), 400
+        if len(nickname) > 30:
+            return jsonify({'error': '닉네임은 30자 이하로 입력해주세요.'}), 400
+
+        user_id = session.get('user_id')
+        if not user_id:
+            # 보통 @before_request에서 생성되지만 안전장치
+            user_id = str(uuid.uuid4())
+            session['user_id'] = user_id
+
+        # 세션과 Redis에 닉네임 저장
+        session['nickname'] = nickname
+        try:
+            redis_client.hset(f"user:{user_id}", "nickname", nickname)
+        except Exception as e:
+            print(f"Redis에 닉네임 저장 중 오류: {e}")
+
+        return jsonify({'nickname': nickname}), 200
+    except Exception as e:
+        print(f"닉네임 설정 중 오류: {e}")
+        return jsonify({'error': '닉네임 설정 중 오류가 발생했습니다.'}), 500
+
 # 정답 맞춘 사용자 정보 저장
 def save_correct_user(user_id, user_word, attempts, time_taken):
     try:
