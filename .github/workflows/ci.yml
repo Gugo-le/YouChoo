@@ -85,6 +85,23 @@ jobs:
               docker run -d --name youchoo --restart unless-stopped -p 8000:8000 "$IMAGE" || true
             fi
 
+              # Health check: try to reach local service on remote host
+              echo "Checking service health on remote host..."
+              SUCCESS=0
+              for i in $(seq 1 10); do
+                if curl -sS -f http://localhost:8000/health >/dev/null 2>&1; then
+                  echo "Health check passed"
+                  SUCCESS=1
+                  break
+                fi
+                echo "Health check attempt $i failed, retrying..."
+                sleep 3
+              done
+              if [ "$SUCCESS" -ne 1 ]; then
+                echo "ERROR: Service health check failed on remote host"
+                exit 1
+              fi
+
       - name: Slack notification (CI deploy)
         if: ${{ secrets.SLACK_WEBHOOK }}
         run: |

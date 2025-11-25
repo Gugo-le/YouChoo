@@ -386,6 +386,36 @@ def get_wordcloud():
     except Exception as e:
         print(f"워드클라우드 반환 중 오류: {e}")
         return jsonify({"error": "워드클라우드를 반환하지 못했습니다."}), 500
+
+
+# Health check endpoint for CI/CD
+@app.route('/health', methods=['GET'])
+def health_check():
+    status = {}
+    ok = True
+    # time
+    status['time'] = datetime.datetime.utcnow().isoformat() + 'Z'
+    # target word file check
+    try:
+        if os.path.exists("project/txt/target_word.txt"):
+            status['target_word_file'] = 'ok'
+        else:
+            status['target_word_file'] = 'missing'
+            ok = False
+    except Exception as e:
+        status['target_word_file'] = f'error: {str(e)}'
+        ok = False
+
+    # redis check
+    try:
+        redis_client.ping()
+        status['redis'] = 'ok'
+    except Exception as e:
+        status['redis'] = f'error: {str(e)}'
+        ok = False
+
+    status['status'] = 'ok' if ok else 'fail'
+    return (jsonify(status), 200) if ok else (jsonify(status), 500)
     
 # 사용자들 텍스트와 그에 맞는 랭킹 저장
 @app.route('/submit', methods=['POST'])
