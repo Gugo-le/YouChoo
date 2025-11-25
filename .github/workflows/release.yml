@@ -74,3 +74,20 @@ jobs:
               echo "Compose file not found (or REMOTE_COMPOSE_PATH not set) — running container directly"
               docker run -d --name youchoo --restart unless-stopped -p 8000:8000 "$IMAGE" || true
             fi
+
+        - name: Optionally push release to Docker Hub
+          if: ${{ secrets.DOCKERHUB_USERNAME && secrets.DOCKERHUB_TOKEN }}
+          run: |
+            echo "Logging into Docker Hub"
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            GHCR_IMAGE=ghcr.io/${{ github.repository_owner }}/youchoo:${{ github.ref_name }}
+            DOCKERHUB_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/youchoo:${{ github.ref_name }}
+            docker pull "$GHCR_IMAGE" || true
+            docker tag "$GHCR_IMAGE" "$DOCKERHUB_IMAGE"
+            docker push "$DOCKERHUB_IMAGE" || true
+
+        - name: Slack notification (release deploy)
+          if: ${{ secrets.SLACK_WEBHOOK }}
+          run: |
+            PAYLOAD=$(jq -n --arg txt "Release deployed: $IMAGE" '{text: $txt}')
+            curl -s -X POST -H 'Content-type: application/json' --data "$PAYLOAD" "$SLACK_WEBHOOK"
