@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+  web:
+    build:
+      context: ./project
+      dockerfile: Dockerfile
+    image: youchoo-web:latest
+    restart: unless-stopped
+    ports:
+      - "5001:5000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PRELOAD_MODEL=1
+      # Optional: set MODEL_URL to allow container to download the FastText model on startup
+      # - MODEL_URL=https://example.com/path/to/cc.ko.300.bin
+    volumes:
+      - ./project:/app:ro
+      - model-data:/app/model
+    depends_on:
+      - redis
+    # Use gunicorn preload so master loads model once and forks workers to share memory.
+    # Keep timeout high to allow model load to complete.
+    command: ["gunicorn", "--preload", "-w", "1", "-b", "0.0.0.0:5000", "--timeout", "300", "app:app"]
+
+  scheduler:
+    build:
+      context: ./project
+      dockerfile: Dockerfile
+    image: youchoo-scheduler:latest
+    restart: unless-stopped
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./project:/app:ro
+      - model-data:/app/model
+    depends_on:
+      - redis
+    command: ["python3", "-u", "-c", "from app import schedule_jobs; schedule_jobs()"]
+
+volumes:
+  redis-data:
+  model-data:
