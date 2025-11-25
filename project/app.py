@@ -9,6 +9,10 @@ import threading
 import datetime
 import uuid
 import redis
+try:
+    from gensim.models import FastText as GensimFastText
+except Exception:
+    GensimFastText = None
 from wordcloud import WordCloud
 from collections import Counter
 from sklearn.metrics.pairwise import cosine_similarity
@@ -31,6 +35,11 @@ def ensure_user_id():
         
 # FastText 모델 로드
 def load_fasttext_model(file_path):
+    if not os.path.exists(file_path):
+        print(f"경고: FastText 모델 파일을 찾을 수 없습니다: {file_path}")
+        print("FastText 모델을 다운로드하려면 다음 명령어를 실행하세요:")
+        print("wget https://dl.fbaipublicfiles.com/fasttext/supervised-models/cc.ko.300.bin -P project/model/")
+        return None
     try:
         model = fasttext.load_model(file_path)
         return model
@@ -39,6 +48,23 @@ def load_fasttext_model(file_path):
         return None
 
 fasttext_model = load_fasttext_model("project/model/cc.ko.300.bin")
+
+# gensim FastText 모델(증분 학습용) 로드
+def load_gensim_model(file_path):
+    if GensimFastText is None:
+        print("경고: gensim이 설치되어 있지 않아 gensim FastText를 사용할 수 없습니다.")
+        return None
+    if not os.path.exists(file_path):
+        return None
+    try:
+        model = GensimFastText.load(file_path)
+        print(f"Loaded gensim model: {file_path}")
+        return model
+    except Exception as e:
+        print(f"gensim FastText 모델 로드 중 오류: {e}")
+        return None
+
+gensim_model = load_gensim_model("project/model/gensim_fasttext.model")
 
 # 매일 랜덤 목표 단어 생성
 def get_daily_target_word(file_path):
@@ -53,15 +79,39 @@ def get_daily_target_word(file_path):
         return None
 
 # 유사도 계산 함수
-def calculate_similarity(user_word, target_word, model):
+def calculate_similarity(user_word, target_word, model=None):
+    """Calculate cosine similarity between two words.
+    Preference order:
+      1) gensim_model (if available and contains the word)
+      2) fasttext_model (facebook fasttext)
+    """
     try:
-        user_vec = model.get_word_vector(user_word)
-        target_vec = model.get_word_vector(target_word)
-        similarity = cosine_similarity([user_vec], [target_vec])
-        return similarity[0][0]
+        # try gensim model first (incremental updates live here)
+        if gensim_model is not None:
+            try:
+                user_vec = gensim_model.wv[user_word]
+                target_vec = gensim_model.wv[target_word]
+                similarity = cosine_similarity([user_vec], [target_vec])
+                return float(similarity[0][0])
+            except KeyError:
+                # missing in gensim model, fallback to fasttext
+                pass
+
+        # fallback to fasttext model
+        if model is not None:
+            try:
+                user_vec = model.get_word_vector(user_word)
+                target_vec = model.get_word_vector(target_word)
+                similarity = cosine_similarity([user_vec], [target_vec])
+                return float(similarity[0][0])
+            except Exception:
+                pass
+
+        print("경고: 유사도 계산에 사용할 수 있는 모델이 없습니다. 기본값 0.5 반환")
+        return 0.5
     except Exception as e:
         print(f"유사도 계산 중 오류: {e}")
-        return None
+        return 0.5
 
 # 워드클라우드 생성
 def generate_wordcloud_base64():
