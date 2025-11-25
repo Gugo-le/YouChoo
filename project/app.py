@@ -239,8 +239,8 @@ def set_nickname():
         nickname = (data.get('nickname') or '').strip()
         if not nickname:
             return jsonify({'error': '닉네임을 입력해주세요.'}), 400
-        if len(nickname) > 30:
-            return jsonify({'error': '닉네임은 30자 이하로 입력해주세요.'}), 400
+        if len(nickname) > 20:
+            return jsonify({'error': '닉네임은 20자 이하로 입력해주세요.'}), 400
 
         user_id = session.get('user_id')
         if not user_id:
@@ -424,9 +424,17 @@ def top10():
         formatted_rankings = []
         for key, score in rankings:
             time_taken = redis_client.hget(key, "time_taken")
-            uuid_short = key.split(":")[0][:8] + "..." + key.split(":")[0][-8:]  # UUID를 중간에 자름
+            uuid_full = key.split(":")[0]
+            uuid_short = uuid_full[:8] + "..." + uuid_full[-8:]
+            # 닉네임이 있으면 불러오기
+            nickname = None
+            try:
+                nickname = redis_client.hget(f"user:{uuid_full}", "nickname")
+            except Exception:
+                nickname = None
             formatted_rankings.append({
                 "uuid": uuid_short,
+                "nickname": nickname,
                 "word": key.split(":")[1],
                 "attempts": score,
                 "time": time_taken

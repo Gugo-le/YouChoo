@@ -3,4 +3,4 @@
 cc.ko.300.bin
 dump.rdb
 
-txt/
+txt/project/model/*.npy
