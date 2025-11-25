@@ -4,3 +4,4 @@ cc.ko.300.bin
 dump.rdb
 project/txt
 txt/project/model/*.npy
+project/model/gensim_fasttext.model.wv.vectors_ngrams.npy
