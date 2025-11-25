@@ -47,7 +47,13 @@ def load_fasttext_model(file_path):
         print(f"FastText 모델 로드 중 오류: {e}")
         return None
 
-fasttext_model = load_fasttext_model("project/model/cc.ko.300.bin")
+# Optionally skip loading large models in local/dev environments by setting
+# environment variable `SKIP_MODEL_LOAD=1` (useful for CI or local smoke tests).
+if os.environ.get("SKIP_MODEL_LOAD", "0") == "1":
+    print("SKIP_MODEL_LOAD=1 detected — skipping loading of FastText/gensim models")
+    fasttext_model = None
+else:
+    fasttext_model = load_fasttext_model("project/model/cc.ko.300.bin")
 
 # gensim FastText 모델(증분 학습용) 로드
 def load_gensim_model(file_path):
@@ -64,7 +70,10 @@ def load_gensim_model(file_path):
         print(f"gensim FastText 모델 로드 중 오류: {e}")
         return None
 
-gensim_model = load_gensim_model("project/model/gensim_fasttext.model")
+if os.environ.get("SKIP_MODEL_LOAD", "0") == "1":
+    gensim_model = None
+else:
+    gensim_model = load_gensim_model("project/model/gensim_fasttext.model")
 
 # 매일 랜덤 목표 단어 생성
 def get_daily_target_word(file_path):
