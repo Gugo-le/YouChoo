@@ -105,3 +105,25 @@ Follow these steps to enable automatic build & deploy from GitHub Actions.
   - Push changes; the GH Actions workflow will run and (if secrets present) deploy automatically.
 
 If you'd like, I can add a second workflow that only runs on release tags, or add Docker Hub support instead of GHCR.
+
+### Quick verification (local)
+
+1. Build the image locally (from repo root):
+```bash
+docker build -t youchoo-local:latest -f project/Dockerfile project
+```
+
+2. Run locally (bind port 8000):
+```bash
+docker run --rm -p 8000:8000 youchoo-local:latest
+```
+
+3. Test the app at `http://localhost:8000`.
+
+### Helpful notes and security
+
+- Create a dedicated deploy SSH key on your server and add the **public** key to `~/.ssh/authorized_keys` for `DEPLOY_USER`. Store the **private** key as the `DEPLOY_SSH_KEY` repository secret.
+- Prefer restricting the deploy key to a single user and directory; do not reuse your personal keys.
+- For extra security, consider using GitHub Actions OIDC or a short-lived token instead of long-lived SSH keys.
+
+If you want, I can add a separate `release.yml` that only builds images when you push a Git tag, or I can add DockerHub support instead of GHCR.
