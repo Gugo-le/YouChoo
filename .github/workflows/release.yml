@@ -46,3 +46,31 @@ jobs:
           body: "Release built and pushed to GHCR: ghcr.io/${{ github.repository_owner }}/youchoo:${{ github.ref_name }}"
           draft: false
           prerelease: false
+
+  deploy:
+    name: Deploy release to remote host
+    needs: build-and-push-release
+    runs-on: ubuntu-latest
+    if: ${{ secrets.DEPLOY_SSH_KEY && secrets.DEPLOY_HOST && secrets.DEPLOY_USER }}
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          script: |
+            set -euo pipefail
+            IMAGE=ghcr.io/${{ github.repository_owner }}/youchoo:${{ github.ref_name }}
+            echo "Pulling release image: $IMAGE"
+            docker pull "$IMAGE" || true
+            REMOTE_COMPOSE_PATH="${{ secrets.REMOTE_COMPOSE_PATH }}"
+            if [ -n "$REMOTE_COMPOSE_PATH" ] && [ -f "$REMOTE_COMPOSE_PATH" ]; then
+              echo "Found compose at $REMOTE_COMPOSE_PATH — pulling and restarting services"
+              docker-compose -f "$REMOTE_COMPOSE_PATH" pull || true
+              docker-compose -f "$REMOTE_COMPOSE_PATH" up -d || true
+            else
+              echo "Compose file not found (or REMOTE_COMPOSE_PATH not set) — running container directly"
+              docker run -d --name youchoo --restart unless-stopped -p 8000:8000 "$IMAGE" || true
+            fi
