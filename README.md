@@ -79,3 +79,29 @@ python project/app.py
 - [x] 영어 입력 alert to gameinfo()
 - [ ] t-SNE 사용-> 유사도를 더 시각적으로 확인
 - [ ] 힌트 기능: 
+
+## Deployment (CI/CD)
+
+Follow these steps to enable automatic build & deploy from GitHub Actions.
+
+- Required repository secrets (Settings → Secrets → Actions):
+  - `GITHUB_TOKEN` — provided by GitHub automatically (used by Actions).
+  - `DEPLOY_HOST` — remote server IP or hostname.
+  - `DEPLOY_USER` — SSH user on the remote host (e.g., `ubuntu`).
+  - `DEPLOY_SSH_KEY` — private SSH key (PEM) for `DEPLOY_USER` (add as secret, do NOT add passphrase).
+  - (optional) `REMOTE_COMPOSE_PATH` — path to `docker-compose.yml` on the remote host (e.g. `/home/ubuntu/youchoo/docker-compose.yml`).
+
+- How it works:
+  1. Push to `main`/`master` triggers `.github/workflows/ci.yml`.
+ 2. Action builds the Docker image from `project/Dockerfile` and pushes to GitHub Container Registry `ghcr.io/<owner>/youchoo`.
+ 3. If `DEPLOY_*` secrets are set, the workflow SSHes to your `DEPLOY_HOST` and pulls the new image. If `REMOTE_COMPOSE_PATH` exists on the host the workflow will run `docker-compose pull` and `docker-compose up -d`; otherwise it will run the container with `docker run -d`.
+
+- Quick local steps to finalize:
+  - Make the deploy helper executable locally:
+    ```bash
+    chmod +x ./scripts/deploy.sh
+    ```
+  - Add the required GitHub secrets in repository settings.
+  - Push changes; the GH Actions workflow will run and (if secrets present) deploy automatically.
+
+If you'd like, I can add a second workflow that only runs on release tags, or add Docker Hub support instead of GHCR.
