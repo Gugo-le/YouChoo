@@ -22,6 +22,24 @@ from flask.cli import AppGroup
 app = Flask(__name__)
 app.secret_key = 'strawberrycake'
 
+
+MODEL_PATH = os.environ.get('MODEL_PATH', 'model/cc.ko.300.bin')    
+_model = None
+_model_lock = threading.Lock()
+
+def load_model():
+    global _model
+    if _model is None:
+        with _model_lock:
+            if _model is None:
+                try:
+                    import fasttext
+                    _model = fasttext.load_model(MODEL_PATH)
+                    app.logger.info(f"Loaded FastText model from {MODEL_PATH}")
+                except Exception as e:
+                    app.logger.error("Failed to load FastText model: %s", e)
+                    _model = None
+    return _model
 # 현재 작업 디렉토리 설정
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
